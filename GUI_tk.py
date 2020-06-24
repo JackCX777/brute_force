@@ -8,14 +8,14 @@ root = Tk()
 root.geometry('800x600')
 
 style = Style()
-style.configure('br.TFrame', foreground='red', background='black')
-style.map('br.TFrame',
-          highlightcolor=[('focus', 'green'),
-                        ('!focus', 'red')])
 
-frame = Frame(root, style='br.TFrame')
-frame.pack(expand=True, fill=BOTH)
-bottomframe = Frame(root, style='br.TFrame')
-bottomframe.pack(expand=True, fill=BOTH, side='bottom')
+style.configure('top.TFrame', background='red', relief='ridge', padding=6, width=100, height=100)
+top_frame = Frame(root, width=100, height=100, style='top.TFrame')
+top_frame.pack(fill='both', expand=True, anchor='s')
+
+style.configure('bot.TFrame', background='blue', relief='ridge', padding=6, width=100, height=100)
+bottom_frame = Frame(root, style='bot.TFrame')
+bottom_frame.pack(expand=True, fill=BOTH, side='bottom', anchor='s')
+
 
 root.mainloop()
