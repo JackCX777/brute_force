@@ -9,13 +9,14 @@ root.geometry('800x600')
 
 style = Style()
 
-style.configure('top.TFrame', background='red', relief='ridge', padding=6, width=100, height=100)
-top_frame = Frame(root, width=100, height=100, style='top.TFrame')
-top_frame.pack(fill='both', expand=True, anchor='s')
+style.configure('top.TFrame', background='red', relief='ridge')
+top_frame = Frame(root, style='top.TFrame')
+# top_frame.pack(expand=True, fill='both', side='top')
+top_frame.pack(expand=True, fill='both')
 
-style.configure('bot.TFrame', background='blue', relief='ridge', padding=6, width=100, height=100)
+style.configure('bot.TFrame', background='blue', relief='ridge')
 bottom_frame = Frame(root, style='bot.TFrame')
-bottom_frame.pack(expand=True, fill=BOTH, side='bottom', anchor='s')
-
+# bottom_frame.pack(expand=True, fill='both', side='bottom')
+bottom_frame.pack(expand=True, fill='both')
 
 root.mainloop()
