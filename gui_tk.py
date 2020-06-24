@@ -5,7 +5,10 @@ from tkinter.ttk import *
 
 
 root = Tk()
-root.geometry('800x600')
+root.title('Brute force')
+root.iconbitmap('.icon')
+root.geometry('800x600+300+100')
+root.resizable(True, True)
 
 style = Style()
 
