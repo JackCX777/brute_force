@@ -3,6 +3,90 @@ import tkinter.ttk as ttk
 # This code will replace tkinter widgets by ttk widgets
 # from tkinter import *
 # from tkinter.ttk import *
+# This code import pid from test_server.py
+# from test_server import pid
+# import os
+# import signal
+# This code for run test_server.py by click button
+import subprocess
+
+
+# global var:
+test_server_run = None
+print(test_server_run)
+
+# Command functions
+def test_server_button_on_clicked():
+    global test_server_run
+    protocol_var.set('http')
+    node_var.set('127.0.0.1')
+    port_var.set('5000')
+    path_var.set('auth')
+    auth_rbutton_var.set(1)
+    protocol_entry['state'] = 'disabled'
+    node_entry['state'] = 'disabled'
+    port_entry['state'] = 'disabled'
+    path_entry['state'] = 'disabled'
+    auth_rbutton1['state'] = 'disabled'
+    auth_rbutton2['state'] = 'disabled'
+    auth_rbutton3['state'] = 'disabled'
+    auth_rbutton4['state'] = 'disabled'
+    if test_server_run is None:
+        test_server_run = subprocess.Popen(['python', 'test_server.py'])
+        print(test_server_run)
+        output_screen.delete('1.0', 'end')
+        output_screen.insert('end', ' Test server is up!\n')
+    else:
+        output_screen.delete('1.0', 'end')
+        output_screen.insert('end', ' Test server already in use!\n')
+    # print(pid)
+
+def test_server_button_off_clicked():
+    global test_server_run
+    protocol_var.set('')
+    node_var.set('')
+    port_var.set('')
+    path_var.set('')
+    auth_rbutton_var.set(1)
+    protocol_entry['state'] = 'normal'
+    node_entry['state'] = 'normal'
+    port_entry['state'] = 'normal'
+    path_entry['state'] = 'normal'
+    auth_rbutton1['state'] = 'normal'
+    auth_rbutton2['state'] = 'normal'
+    auth_rbutton3['state'] = 'normal'
+    auth_rbutton4['state'] = 'normal'
+    if test_server_run is not None:
+        test_server_run.kill()
+        print(test_server_run)
+        test_server_run = None
+        output_screen.delete('1.0', 'end')
+        output_screen.insert('end', ' Test server is down!\n')
+    else:
+        output_screen.delete('1.0', 'end')
+        output_screen.insert('end', ' Test server is not in use!\n')
+    # sig = getattr(signal, "SIGKILL", signal.SIGTERM)
+    # os.kill(pid, "SIGKILL")
+    # print(pid)
+
+
+def attack_button_on_clicked():
+    attack_progress.start(50)
+    output_screen.insert('end', 'XYU\n')
+
+def attack_button_off_clicked():
+    attack_progress.stop()
+    output_screen.insert('end', 'BAM\n')
+
+def x_main_window():
+    global test_server_run
+    if test_server_run is not None:
+        test_server_run.kill()
+        test_server_run = None
+        root.destroy()
+    else:
+        root.destroy()
+
 
 # Main window
 root = tk.Tk()
@@ -11,6 +95,11 @@ root.geometry('820x600+300+100')
 root.resizable(False, False)
 
 # Anchor option working only with expand option
+#
+# It makes widget stretchable:
+# widget.rowconfigure(0, weight=1)
+# widget.columnconfigure(0, weight=1)
+# widget.grid(sticky='n'+'s'+'e'+'w')
 
 # Using tk:
 #
@@ -35,7 +124,7 @@ style.configure('center.TFrame', height=100)
 style.configure('my.TFrame')
 style.configure('Horizontal.TProgressbar')
 style.configure('main.TLabelframe', sticky='nsew', borderwidth=5, relief='groove')
-style.configure('my.TLabelframe', sticky='n'+'s'+'w'+'e', borderwidth=1)
+style.configure('my.TLabelframe', sticky='n'+'s'+'e'+'w', borderwidth=1)
 style.configure('my.TLabel', padx=1, sticky='w')
 style.configure('my.TEntry')
 style.configure('my.TRadiobutton')
@@ -77,10 +166,15 @@ node_label.grid(row=1, column=0, padx=1, sticky='w')
 port_label.grid(row=2, column=0, padx=1, sticky='w')
 path_label.grid(row=3, column=0, padx=1, sticky='w')
 # Server options entries
-protocol_entry = ttk.Entry(server_frame, style='my.TEntry', font='Menlo 12')
-node_entry = ttk.Entry(server_frame, style='my.TEntry', font='Menlo 12')
-port_entry = ttk.Entry(server_frame, style='my.TEntry', font='Menlo 12')
-path_entry = ttk.Entry(server_frame, style='my.TEntry', font='Menlo 12')
+protocol_var = tk.StringVar()
+protocol_entry = ttk.Entry(server_frame, style='my.TEntry', font='Menlo 12', textvariable=protocol_var)
+# protocol_entry.insert(tk.END, 'http')
+node_var = tk.StringVar()
+node_entry = ttk.Entry(server_frame, style='my.TEntry', font='Menlo 12', textvariable=node_var)
+port_var = tk.StringVar()
+port_entry = ttk.Entry(server_frame, style='my.TEntry', font='Menlo 12', textvariable=port_var)
+path_var = tk.StringVar()
+path_entry = ttk.Entry(server_frame, style='my.TEntry', font='Menlo 12', textvariable=path_var)
 protocol_entry.grid(row=0, column=1)
 node_entry.grid(row=1, column=1)
 port_entry.grid(row=2, column=1)
@@ -97,8 +191,10 @@ auth_rbutton3.grid(row=2, column=1, sticky='w')
 auth_rbutton4 = ttk.Radiobutton(auth_frame, text='other', variable=auth_rbutton_var, value=4, style='my.TRadiobutton')
 auth_rbutton4.grid(row=3, column=1, sticky='w')
 # Server options test server buttons
-test_server_button_on = ttk.Button(test_server_frame, text='run test server', style='start.TButton')
-test_server_button_off = ttk.Button(test_server_frame, text='stop test server', style='stop.TButton')
+test_server_button_on = ttk.Button(test_server_frame, text='run test server', style='start.TButton',
+                                   command=test_server_button_on_clicked)
+test_server_button_off = ttk.Button(test_server_frame, text='stop test server', style='stop.TButton',
+                                    command=test_server_button_off_clicked)
 test_server_button_on.grid(row=0, column=0, sticky='nsew', ipady=10)
 test_server_button_off.grid(row=1, column=0, sticky='nsew', ipady=10)
 # Attack options Labelframes
@@ -118,7 +214,8 @@ progress_frame.grid(row=1, column=0, columnspan=3, sticky='ew')
 login_label = ttk.Label(login_frame, text='Enter target\nlogin or e-mail:', style='my.TLabel')
 login_label.grid(row=0, column=0)
 # Attack options entries
-login_entry = ttk.Entry(login_frame, style='my.TEntry', width=10)
+login_var = tk.StringVar()
+login_entry = ttk.Entry(login_frame, style='my.TEntry', width=10, textvariable=login_var)
 login_entry.grid(row=1, column=0)
 # Attack options radiobuttons
 attack_rbutton_var = tk.IntVar()
@@ -133,16 +230,18 @@ attack_rbutton1.grid(row=0, column=0, sticky='w')
 attack_rbutton2.grid(row=1, column=0, sticky='w')
 attack_rbutton3.grid(row=2, column=0, sticky='w')
 # Attack options buttons
-attack_button_on = ttk.Button(attack_frame, text='start attack', style='start.TButton')
-attack_button_off = ttk.Button(attack_frame, text='stop attack', style='stop.TButton')
+attack_button_on = ttk.Button(attack_frame, text='start attack', style='start.TButton',
+                              command=attack_button_on_clicked)
+attack_button_off = ttk.Button(attack_frame, text='stop attack', style='stop.TButton',
+                               command=attack_button_off_clicked)
 attack_button_on.grid(row=0, column=0, sticky='w'+'e', pady=5)
 attack_button_off.grid(row=1, column=0, sticky='w'+'e', pady=5)
 # Progress bar
 attack_progress = ttk.Progressbar(progress_frame, mode='indeterminate', style='Horizontal.TProgressbar',
                                   length=350, orient=tk.HORIZONTAL, maximum=100)
 attack_progress.grid(row=0, column=0, columnspan=3, sticky='ew')
-attack_progress.start(50)
-attack_progress.stop()
+# attack_progress.start(50)
+# attack_progress.stop()
 
 # Bottom frame
 # Bottom frame
@@ -163,5 +262,9 @@ yscrollbar.grid(row=0, column=1, sticky='ns')
 xscrollbar = tk.Scrollbar(bottom_frame, orient='hor', command=output_screen.xview)
 output_screen['xscrollcommand'] = xscrollbar.set
 xscrollbar.grid(row=1, column=0, sticky='ew')
+
+# This code call function x_main_window()
+# when user close main window by clicking x
+root.protocol('WM_DELETE_WINDOW', x_main_window)
 
 root.mainloop()

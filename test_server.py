@@ -1,6 +1,7 @@
 import json
-
 from flask import Flask, request, Response
+# import os
+
 
 app = Flask(__name__)
 
@@ -38,6 +39,8 @@ def auth():
 
     return Response(status=status_code)
 
+# pid = os.getpid()
+# print(pid)
 
 if __name__ == '__main__':
     app.run()
