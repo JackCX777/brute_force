@@ -200,23 +200,29 @@ test_server_button_off.grid(row=1, column=0, sticky='nsew', ipady=10)
 # Attack options Labelframes
 attack_options_frame = ttk.Labelframe(center_frame, text='Attack options', style='main.TLabelframe')
 login_frame = ttk.Labelframe(attack_options_frame, text='Target login', style='my.TLabelframe')
+pass_len_frame = ttk.Labelframe(attack_options_frame, text='Password', style='my.TLabelframe')
 method_frame = ttk.Labelframe(attack_options_frame, text='Attack method', style='my.TLabelframe')
-attack_frame = ttk.Labelframe(attack_options_frame, text='Attack control', style='my.TLabelframe')
-progress_frame = ttk.Frame(attack_options_frame, style='my.TFrame')
+attack_frame = ttk.Frame(attack_options_frame, style='my.TFrame')
 attack_options_frame.grid(row=0, column=1, sticky='n')
 login_frame.grid(row=0, column=0, sticky='n')
-method_frame.grid(row=0, column=1, sticky='n')
-attack_frame.grid(row=0, column=2, sticky='n')
+pass_len_frame.grid(row=0, column=1, sticky='n')
+method_frame.grid(row=0, column=2, sticky='n')
+attack_frame.grid(row=1, column=0, columnspan=3, sticky='ew')
 attack_options_frame.rowconfigure(0, weight=1)
 attack_options_frame.columnconfigure(0, weight=1)
-progress_frame.grid(row=1, column=0, columnspan=3, sticky='ew')
 # Attack options labels
 login_label = ttk.Label(login_frame, text='Enter target\nlogin or e-mail:', style='my.TLabel')
 login_label.grid(row=0, column=0)
+pass_len_label = ttk.Label(pass_len_frame, text='Min password\nlength:', style='my.TLabel')
+pass_len_label.grid(row=0, column=0)
 # Attack options entries
 login_var = tk.StringVar()
 login_entry = ttk.Entry(login_frame, style='my.TEntry', width=10, textvariable=login_var)
 login_entry.grid(row=1, column=0)
+pass_len_var = tk.IntVar()
+pass_len_var.set(0)
+pass_len_entry = ttk.Entry(pass_len_frame, style='my.TEntry', width=10, textvariable=pass_len_var)
+pass_len_entry.grid(row=2, column=0, sticky='w')
 # Attack options radiobuttons
 attack_rbutton_var = tk.IntVar()
 attack_rbutton_var.set(1)
@@ -234,14 +240,16 @@ attack_button_on = ttk.Button(attack_frame, text='start attack', style='start.TB
                               command=attack_button_on_clicked)
 attack_button_off = ttk.Button(attack_frame, text='stop attack', style='stop.TButton',
                                command=attack_button_off_clicked)
-attack_button_on.grid(row=0, column=0, sticky='w'+'e', pady=5)
-attack_button_off.grid(row=1, column=0, sticky='w'+'e', pady=5)
+attack_button_on.grid(row=0, column=0, sticky='w'+'e', padx=5, ipadx=30)
+attack_button_off.grid(row=0, column=1, sticky='w'+'e', padx=5, ipadx=30)
 # Progress bar
+progress_frame = ttk.Frame(center_frame, style='my.TFrame')
+progress_frame.grid(row=1, column=0, columnspan=2, sticky='ew')
 attack_progress = ttk.Progressbar(progress_frame, mode='indeterminate', style='Horizontal.TProgressbar',
-                                  length=350, orient=tk.HORIZONTAL, maximum=100)
-attack_progress.grid(row=0, column=0, columnspan=3, sticky='ew')
-# attack_progress.start(50)
-# attack_progress.stop()
+                                  length=800, orient=tk.HORIZONTAL, maximum=100)
+attack_progress.grid(row=0, column=0, padx=10, sticky='ew')
+attack_progress.start(50)
+attack_progress.stop()
 
 # Bottom frame
 # Bottom frame
