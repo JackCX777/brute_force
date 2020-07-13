@@ -3,18 +3,33 @@ import tkinter.ttk as ttk
 # This code will replace tkinter widgets by ttk widgets
 # from tkinter import *
 # from tkinter.ttk import *
-# This code import pid from test_server.py
+# This code import process id from test_server.py
 # from test_server import pid
 # import os
 # import signal
 # This code for run test_server.py by click button
 import subprocess
 import json
+import server_settings
+import substitution_password_attacks
+import brute_force_password_attacks
+import attack_plans
 
 
 # global var:
 test_server_run = None
+attack_plans_run = None
 # print(test_server_run)
+
+# This code try to show print() in GUI text widget (maybe doesn't work):
+# import sys
+# Service functions
+# This code redirect print() to text widget:
+# def redirect_stdout(output_str):
+#     output_screen.insert('end', output_str)
+#
+# #whenever sys.stdout.write is called, redirector is called
+# sys.stdout.write = redirect_stdout
 
 # Command functions
 def test_server_button_on_clicked():
@@ -35,9 +50,16 @@ def test_server_button_on_clicked():
     auth_rbutton3['state'] = 'disabled'
     auth_rbutton4['state'] = 'disabled'
     if test_server_run is None:
-        test_server_run = subprocess.Popen(['python', 'test_server.py'])
-        # print(test_server_run)
         output_screen.delete('1.0', 'end')
+        test_server_run = subprocess.Popen(['python', 'test_server.py'],
+                                           # stdin=None,
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE,
+                                           bufsize=1,
+                                           universal_newlines=True)
+        for server_line in test_server_run.stdout:
+            output_screen.insert('end', server_line)
+        # print(test_server_run)
         output_screen.insert('end', ' Test server is up!\n')
     else:
         output_screen.delete('1.0', 'end')
@@ -75,6 +97,7 @@ def test_server_button_off_clicked():
 
 
 def attack_button_on_clicked():
+    global attack_plans_run
     output_screen.delete('1.0', 'end')
     start_attack_flag = False
     with open('server_settings.json', 'r') as set_serv_file:
@@ -109,17 +132,27 @@ def attack_button_on_clicked():
             start_attack_flag = True
         if auth_rbutton_var.get() == 1:
             set_serv_dict['net_query'] = 'json'
+            start_attack_flag = True
         elif auth_rbutton_var.get() == 2:
-            set_serv_dict['net_query'] = 'data'
+            # set_serv_dict['net_query'] = 'data'
+            start_attack_flag = False
+            output_screen.insert('end', 'Test server supports only json authorisation!\n'
+                                 + 'You can use this program only with test server!\n')
         elif auth_rbutton_var.get() == 3:
-            set_serv_dict['net_query'] = 'headers'
+            # set_serv_dict['net_query'] = 'headers'
+            start_attack_flag = False
+            output_screen.insert('end', 'Test server supports only json authorisation!\n'
+                                 + 'You can use this program only with test server!\n')
         elif auth_rbutton_var.get() == 4:
-            set_serv_dict['net_query'] = 'other'
+            # set_serv_dict['net_query'] = 'other'
+            start_attack_flag = False
+            output_screen.insert('end', 'Test server supports only json authorisation!\n'
+                                 + 'You can use this program only with test server!\n')
         if login_var.get() == '':
             output_screen.insert('end', 'Login entry field is empty!\n')
             start_attack_flag = False
         elif login_var.get() not in ['admin', 'cat', 'jack']:
-            output_screen.insert('end', 'Test server supports only thee logins:\n'
+            output_screen.insert('end', 'Test server supports only three logins:\n'
                                  + '\"admin\", \"cat\" or \"jack\"!\n'
                                  + 'You can use this program only with test server!\n')
             start_attack_flag = False
@@ -146,10 +179,23 @@ def attack_button_on_clicked():
         attack_progress.start()
         with open('server_settings.json', 'w') as set_serv_file:
             json.dump(set_serv_dict, set_serv_file, indent=4, sort_keys=False)
+        attack_plans_run = subprocess.Popen(['python', 'attack_plans.py'])
+        if attack_rbutton_var.get() == 1:
+            attack_plans.smart_password_attack(substitution_password_attacks.brute_by_target_info,
+                                               substitution_password_attacks.brute_by_password_list,
+                                               brute_force_password_attacks.brute_force_password
+                                               )
+        elif attack_rbutton_var.get() == 2:
+            attack_plans.password_attack_by_target_info_only(substitution_password_attacks.brute_by_target_info)
+            # attack_plans.password_attack_by_common_list_only(substitution_password_attacks.brute_by_password_list)
+        elif attack_rbutton_var.get() == 3:
+            attack_plans.password_attack_by_brute_force_only(brute_force_password_attacks.brute_force_password)
     else:
         output_screen.insert('end', 'Unable to launch attack!\n')
 
 def attack_button_off_clicked():
+    global attack_plans_run
+    attack_plans_run.kill()
     attack_progress.stop()
     output_screen.insert('end', 'Attack stopped by user.\n')
 
