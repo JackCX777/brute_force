@@ -9,11 +9,12 @@ import tkinter.ttk as ttk
 # import signal
 # This code for run test_server.py by click button
 import subprocess
+import json
 
 
 # global var:
 test_server_run = None
-print(test_server_run)
+# print(test_server_run)
 
 # Command functions
 def test_server_button_on_clicked():
@@ -23,6 +24,8 @@ def test_server_button_on_clicked():
     port_var.set('5000')
     path_var.set('auth')
     auth_rbutton_var.set(1)
+    pass_len_var.set(0)
+    style.configure('server.TEntry', background='lightgrey')
     protocol_entry['state'] = 'disabled'
     node_entry['state'] = 'disabled'
     port_entry['state'] = 'disabled'
@@ -33,7 +36,7 @@ def test_server_button_on_clicked():
     auth_rbutton4['state'] = 'disabled'
     if test_server_run is None:
         test_server_run = subprocess.Popen(['python', 'test_server.py'])
-        print(test_server_run)
+        # print(test_server_run)
         output_screen.delete('1.0', 'end')
         output_screen.insert('end', ' Test server is up!\n')
     else:
@@ -48,6 +51,7 @@ def test_server_button_off_clicked():
     port_var.set('')
     path_var.set('')
     auth_rbutton_var.set(1)
+    style.configure('server.TEntry', background='white')
     protocol_entry['state'] = 'normal'
     node_entry['state'] = 'normal'
     port_entry['state'] = 'normal'
@@ -58,7 +62,7 @@ def test_server_button_off_clicked():
     auth_rbutton4['state'] = 'normal'
     if test_server_run is not None:
         test_server_run.kill()
-        print(test_server_run)
+        # print(test_server_run)
         test_server_run = None
         output_screen.delete('1.0', 'end')
         output_screen.insert('end', ' Test server is down!\n')
@@ -71,12 +75,83 @@ def test_server_button_off_clicked():
 
 
 def attack_button_on_clicked():
-    attack_progress.start(50)
-    output_screen.insert('end', 'XYU\n')
+    output_screen.delete('1.0', 'end')
+    start_attack_flag = False
+    with open('server_settings.json', 'r') as set_serv_file:
+        set_serv_dict = json.load(set_serv_file)
+        if protocol_var.get() == '':
+            output_screen.insert('end', 'Protocol entry field is empty!\n')
+            start_attack_flag = False
+        else:
+            set_serv_dict['net_protocol'] = protocol_var.get()
+            start_attack_flag = True
+        if node_var.get() == '':
+            output_screen.insert('end', 'Node entry field is empty!\n')
+            start_attack_flag = False
+        elif node_var.get() != '127.0.0.1':
+            output_screen.insert('end', 'Test server node is 127.0.0.1!\n'
+                                 + 'You can use this program only with test server!\n')
+            start_attack_flag = False
+        else:
+            set_serv_dict['net_node'] = node_var.get()
+            start_attack_flag = True
+        if port_var.get() == '':
+            output_screen.insert('end', 'Port entry field is empty!\n')
+            start_attack_flag = False
+        else:
+            set_serv_dict['net_port'] = port_var.get()
+            start_attack_flag = True
+        if path_var.get() == '':
+            output_screen.insert('end', 'Path entry field is empty!\n')
+            start_attack_flag = False
+        else:
+            set_serv_dict['net_path'] = path_var.get()
+            start_attack_flag = True
+        if auth_rbutton_var.get() == 1:
+            set_serv_dict['net_query'] = 'json'
+        elif auth_rbutton_var.get() == 2:
+            set_serv_dict['net_query'] = 'data'
+        elif auth_rbutton_var.get() == 3:
+            set_serv_dict['net_query'] = 'headers'
+        elif auth_rbutton_var.get() == 4:
+            set_serv_dict['net_query'] = 'other'
+        if login_var.get() == '':
+            output_screen.insert('end', 'Login entry field is empty!\n')
+            start_attack_flag = False
+        elif login_var.get() not in ['admin', 'cat', 'jack']:
+            output_screen.insert('end', 'Test server supports only thee logins:\n'
+                                 + '\"admin\", \"cat\" or \"jack\"!\n'
+                                 + 'You can use this program only with test server!\n')
+            start_attack_flag = False
+        else:
+            set_serv_dict['server_login'] = login_var.get()
+            start_attack_flag = True
+        if pass_len_var.get() == '':
+            output_screen.insert('end', 'Password length entry field is empty!\n')
+            start_attack_flag = False
+        else:
+            if start_attack_flag == True:
+                try:
+                    value_error = False
+                    set_serv_dict['password_length'] = int(pass_len_var.get())
+                except ValueError:
+                    value_error = True
+                if value_error == False:
+                    start_attack_flag = True
+                else:
+                    output_screen.insert('end', 'Password length entry field supports only numbers!\n')
+                    start_attack_flag = False
+    if start_attack_flag == True:
+        output_screen.insert('end', 'Starting attack:\n')
+        attack_progress.start()
+        with open('server_settings.json', 'w') as set_serv_file:
+            json.dump(set_serv_dict, set_serv_file, indent=4, sort_keys=False)
+    else:
+        output_screen.insert('end', 'Unable to launch attack!\n')
 
 def attack_button_off_clicked():
     attack_progress.stop()
-    output_screen.insert('end', 'BAM\n')
+    output_screen.insert('end', 'Attack stopped by user.\n')
 
 def x_main_window():
     global test_server_run
@@ -126,7 +201,8 @@ style.configure('Horizontal.TProgressbar')
 style.configure('main.TLabelframe', sticky='nsew', borderwidth=5, relief='groove')
 style.configure('my.TLabelframe', sticky='n'+'s'+'e'+'w', borderwidth=1)
 style.configure('my.TLabel', padx=1, sticky='w')
-style.configure('my.TEntry')
+style.configure('server.TEntry')
+style.configure('login.TEntry')
 style.configure('my.TRadiobutton')
 style.configure('start.TButton', foreground='green')
 style.configure('stop.TButton', foreground='red')
@@ -167,14 +243,14 @@ port_label.grid(row=2, column=0, padx=1, sticky='w')
 path_label.grid(row=3, column=0, padx=1, sticky='w')
 # Server options entries
 protocol_var = tk.StringVar()
-protocol_entry = ttk.Entry(server_frame, style='my.TEntry', font='Menlo 12', textvariable=protocol_var)
+protocol_entry = ttk.Entry(server_frame, style='server.TEntry', font='Menlo 12', textvariable=protocol_var)
 # protocol_entry.insert(tk.END, 'http')
 node_var = tk.StringVar()
-node_entry = ttk.Entry(server_frame, style='my.TEntry', font='Menlo 12', textvariable=node_var)
+node_entry = ttk.Entry(server_frame, style='server.TEntry', font='Menlo 12', textvariable=node_var)
 port_var = tk.StringVar()
-port_entry = ttk.Entry(server_frame, style='my.TEntry', font='Menlo 12', textvariable=port_var)
+port_entry = ttk.Entry(server_frame, style='server.TEntry', font='Menlo 12', textvariable=port_var)
 path_var = tk.StringVar()
-path_entry = ttk.Entry(server_frame, style='my.TEntry', font='Menlo 12', textvariable=path_var)
+path_entry = ttk.Entry(server_frame, style='server.TEntry', font='Menlo 12', textvariable=path_var)
 protocol_entry.grid(row=0, column=1)
 node_entry.grid(row=1, column=1)
 port_entry.grid(row=2, column=1)
@@ -217,11 +293,11 @@ pass_len_label = ttk.Label(pass_len_frame, text='Min password\nlength:', style='
 pass_len_label.grid(row=0, column=0)
 # Attack options entries
 login_var = tk.StringVar()
-login_entry = ttk.Entry(login_frame, style='my.TEntry', width=10, textvariable=login_var)
+login_entry = ttk.Entry(login_frame, style='login.TEntry', width=10, textvariable=login_var)
 login_entry.grid(row=1, column=0)
-pass_len_var = tk.IntVar()
-pass_len_var.set(0)
-pass_len_entry = ttk.Entry(pass_len_frame, style='my.TEntry', width=10, textvariable=pass_len_var)
+pass_len_var = tk.StringVar()
+pass_len_var.set('0')
+pass_len_entry = ttk.Entry(pass_len_frame, style='login.TEntry', width=10, textvariable=pass_len_var)
 pass_len_entry.grid(row=2, column=0, sticky='w')
 # Attack options radiobuttons
 attack_rbutton_var = tk.IntVar()
