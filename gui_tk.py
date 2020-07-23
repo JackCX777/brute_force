@@ -10,6 +10,7 @@ import tkinter.ttk as ttk
 # This code for run test_server.py by click button
 import subprocess
 import json
+import tempfile
 import server_settings
 import substitution_password_attacks
 import brute_force_password_attacks
@@ -19,6 +20,7 @@ import attack_plans
 # global var:
 test_server_run = None
 attack_plans_run = None
+# os.times()
 # print(test_server_run)
 
 # This code try to show print() in GUI text widget (maybe doesn't work):
@@ -51,15 +53,12 @@ def test_server_button_on_clicked():
     auth_rbutton4['state'] = 'disabled'
     if test_server_run is None:
         output_screen.delete('1.0', 'end')
-        test_server_run = subprocess.Popen(['python', 'test_server.py'],
-                                           # stdin=None,
-                                           stdout=subprocess.PIPE,
-                                           stderr=subprocess.PIPE,
-                                           bufsize=1,
-                                           universal_newlines=True)
-        for server_line in test_server_run.stdout:
+        server_tmp = tempfile.TemporaryFile(mode='w+')
+        print(tempfile.gettempdir())
+        test_server_run = subprocess.Popen(['python3', 'test_server.py'],
+                                           stdout=server_tmp.)
+        for server_line in server_tmp:
             output_screen.insert('end', server_line)
-        # print(test_server_run)
         output_screen.insert('end', ' Test server is up!\n')
     else:
         output_screen.delete('1.0', 'end')
@@ -82,15 +81,15 @@ def test_server_button_off_clicked():
     auth_rbutton2['state'] = 'normal'
     auth_rbutton3['state'] = 'normal'
     auth_rbutton4['state'] = 'normal'
-    if test_server_run is not None:
+    if test_server_run is None:
+        output_screen.delete('1.0', 'end')
+        output_screen.insert('end', ' Test server is not in use!\n')
+    else:
         test_server_run.kill()
         # print(test_server_run)
         test_server_run = None
         output_screen.delete('1.0', 'end')
         output_screen.insert('end', ' Test server is down!\n')
-    else:
-        output_screen.delete('1.0', 'end')
-        output_screen.insert('end', ' Test server is not in use!\n')
     # sig = getattr(signal, "SIGKILL", signal.SIGTERM)
     # os.kill(pid, "SIGKILL")
     # print(pid)
