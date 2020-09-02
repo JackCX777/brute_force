@@ -3,22 +3,21 @@ import tkinter.ttk as ttk
 # This code will replace tkinter widgets by ttk widgets
 # from tkinter import *
 # from tkinter.ttk import *
-# This code import process id from test_server.py
-# from test_server import pid
-# import os
-# import signal
+
 # This code for run test_server.py by click button
-import subprocess
+# Curio it is a library for async programming
+import curio
+
 import json
-import tempfile
 import server_settings
 import substitution_password_attacks
 import brute_force_password_attacks
 import attack_plans
+from test_server import start_app
 
 
 # global var:
-test_server_run = None
+test_server_proc = None
 attack_plans_run = None
 # os.times()
 # print(test_server_run)
@@ -34,8 +33,12 @@ attack_plans_run = None
 # sys.stdout.write = redirect_stdout
 
 # Command functions
+def import_test_server():
+    start_app()
+
+
 def test_server_button_on_clicked():
-    global test_server_run
+    global test_server_proc
     protocol_var.set('http')
     node_var.set('127.0.0.1')
     port_var.set('5000')
@@ -51,14 +54,9 @@ def test_server_button_on_clicked():
     auth_rbutton2['state'] = 'disabled'
     auth_rbutton3['state'] = 'disabled'
     auth_rbutton4['state'] = 'disabled'
-    if test_server_run is None:
+    if test_server_proc is None:
         output_screen.delete('1.0', 'end')
-        server_tmp = tempfile.TemporaryFile(mode='w+')
-        print(tempfile.gettempdir())
-        test_server_run = subprocess.Popen(['python3', 'test_server.py'],
-                                           stdout=server_tmp.)
-        for server_line in server_tmp:
-            output_screen.insert('end', server_line)
+        test_server_proc = pexpect.spawn('import_test_server')
         output_screen.insert('end', ' Test server is up!\n')
     else:
         output_screen.delete('1.0', 'end')
@@ -66,7 +64,7 @@ def test_server_button_on_clicked():
     # print(pid)
 
 def test_server_button_off_clicked():
-    global test_server_run
+    global test_server_proc
     protocol_var.set('')
     node_var.set('')
     port_var.set('')
@@ -81,13 +79,13 @@ def test_server_button_off_clicked():
     auth_rbutton2['state'] = 'normal'
     auth_rbutton3['state'] = 'normal'
     auth_rbutton4['state'] = 'normal'
-    if test_server_run is None:
+    if test_server_proc is None:
         output_screen.delete('1.0', 'end')
         output_screen.insert('end', ' Test server is not in use!\n')
     else:
-        test_server_run.kill()
+        test_server_proc.kill()
         # print(test_server_run)
-        test_server_run = None
+        test_server_proc = None
         output_screen.delete('1.0', 'end')
         output_screen.insert('end', ' Test server is down!\n')
     # sig = getattr(signal, "SIGKILL", signal.SIGTERM)
@@ -199,10 +197,10 @@ def attack_button_off_clicked():
     output_screen.insert('end', 'Attack stopped by user.\n')
 
 def x_main_window():
-    global test_server_run
-    if test_server_run is not None:
-        test_server_run.kill()
-        test_server_run = None
+    global test_server_proc
+    if test_server_proc is not None:
+        test_server_proc.kill()
+        test_server_proc = None
         root.destroy()
     else:
         root.destroy()
