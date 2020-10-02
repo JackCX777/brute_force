@@ -4,7 +4,7 @@ import tkinter.ttk as ttk
 # from tkinter import *
 # from tkinter.ttk import *
 
-# This code for run test_server.py by click button
+# This code for run test_server_WSGI.py by click button
 # Curio it is a library for async programming
 import curio
 
@@ -13,12 +13,12 @@ import server_settings
 import substitution_password_attacks
 import brute_force_password_attacks
 import attack_plans
-from test_server import start_app
+from test_server_WSGI import start_app
 
 
 # global var:
 test_server_proc = None
-attack_plans_run = None
+attack_proc = None
 # os.times()
 # print(test_server_run)
 
@@ -94,7 +94,7 @@ def test_server_button_off_clicked():
 
 
 def attack_button_on_clicked():
-    global attack_plans_run
+    global attack_proc
     output_screen.delete('1.0', 'end')
     start_attack_flag = False
     with open('server_settings.json', 'r') as set_serv_file:
@@ -191,7 +191,7 @@ def attack_button_on_clicked():
         output_screen.insert('end', 'Unable to launch attack!\n')
 
 def attack_button_off_clicked():
-    global attack_plans_run
+    global attack_proc
     attack_plans_run.kill()
     attack_progress.stop()
     output_screen.insert('end', 'Attack stopped by user.\n')

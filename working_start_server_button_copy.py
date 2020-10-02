@@ -1,4 +1,4 @@
-from test_server import start_app as start_server
+from test_server_WSGI import start_app as start_server
 import curio
 import tkinter
 import threading
@@ -8,6 +8,8 @@ class GUIAapp(object):
     def __init__(self):
         self.commands_queue = curio.UniversalQueue()
         self.event = curio.UniversalEvent()
+        self.server_task = None
+        self.server = start_server
         self.root = tkinter.Tk()
         self.root.geometry('820x600+300+100')
         self.root.resizable(False, False)
@@ -18,7 +20,12 @@ class GUIAapp(object):
 
     async def button_on_click(self):
         print('button on clicked!')
-        await self.start_server_app()
+        self.server_task = await self.start_server_app()
+        server_id = await curio.current_task()
+        print(self.server_task)
+        # await server_proc.join()    # ??????????????????????????????????????
+        curio.sleep(10)
+        self.server_task.cancel()
 
 
     # async def server_work(self):
@@ -31,6 +38,7 @@ class GUIAapp(object):
     async def start_server_app(self):
         print('Starting server....')
         start_server()
+        print('fcuk')
 
     def loop_gui(self):
         threading.Thread(target=curio.run, args=(self.main_loop(),)).start()

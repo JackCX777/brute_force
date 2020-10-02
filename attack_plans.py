@@ -1,5 +1,7 @@
 import json
 import server_queries
+import multiprocessing
+import sys
 # This code try to show print() in GUI text widget (maybe doesn't work):
 import sys
 # import gui_tk
@@ -16,6 +18,7 @@ import sys
 #
 # # sys.stdout.write=print_decorator(sys.stdout.write)
 # sys.stdout.write=print_decorator(print)
+
 
 def smart_password_attack(target_info_attack, password_list_attack, brute_force_attack):
     with open('server_settings.json', 'r') as server_settings_file:
@@ -81,3 +84,12 @@ def password_attack_by_brute_force_only(brute_force_attack):
         print('Algorithm: brute force attack')
     else:
         print('Failure of brute force attack')
+
+output_queue = multiprocessing.Queue()
+# stdout_handle = sys.stdout
+# stdout_open = open(stdout_handle, 'r')
+# for line in stdout_open.read():
+#     print(line)
+with open(sys.stdout, 'r') as stdout_file:
+    for line in stdout_file.read():
+        print(line)

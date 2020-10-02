@@ -5,20 +5,20 @@ import tkinter.ttk as ttk
 # from tkinter.ttk import *
 
 # This code for run test_server_WSGI.py by click button
-# Curio it is a library for async programming
-import curio
+from test_server_WSGI import start_app as application_server
+import multiprocessing
 
 import json
 import server_settings
 import substitution_password_attacks
 import brute_force_password_attacks
 import attack_plans
-from test_server_WSGI import start_app
 
 
 # global var:
 test_server_proc = None
 attack_proc = None
+attack_in_progress_flag = False
 # os.times()
 # print(test_server_run)
 
@@ -33,8 +33,8 @@ attack_proc = None
 # sys.stdout.write = redirect_stdout
 
 # Command functions
-def import_test_server():
-    start_app()
+# def import_test_server():
+#     start_app()
 
 
 def test_server_button_on_clicked():
@@ -54,14 +54,22 @@ def test_server_button_on_clicked():
     auth_rbutton2['state'] = 'disabled'
     auth_rbutton3['state'] = 'disabled'
     auth_rbutton4['state'] = 'disabled'
-    if test_server_proc is None:
-        output_screen.delete('1.0', 'end')
-        test_server_proc = pexpect.spawn('import_test_server')
-        output_screen.insert('end', ' Test server is up!\n')
+    if test_server_proc is not None:
+        if test_server_proc.is_alive():
+            output_screen.delete('1.0', 'end')
+            output_screen.insert('end', ' Test server already in use!\n')
+        else:
+            test_server_proc.terminate()
+            test_server_proc.join()
+            test_server_proc.close()
+            test_server_proc = None
+            output_screen.delete('1.0', 'end')
+            output_screen.insert('end', ' The start of the test server failed.\n Try again!\n')
     else:
         output_screen.delete('1.0', 'end')
-        output_screen.insert('end', ' Test server already in use!\n')
-    # print(pid)
+        test_server_proc = multiprocessing.Process(target=application_server)
+        test_server_proc.start()
+        output_screen.insert('end', ' Test server is up!\n')
 
 def test_server_button_off_clicked():
     global test_server_proc
@@ -82,12 +90,16 @@ def test_server_button_off_clicked():
     if test_server_proc is None:
         output_screen.delete('1.0', 'end')
         output_screen.insert('end', ' Test server is not in use!\n')
-    else:
-        test_server_proc.kill()
-        # print(test_server_run)
+    elif test_server_proc.is_alive():
+        test_server_proc.terminate()
+        test_server_proc.join()
+        test_server_proc.close()
         test_server_proc = None
         output_screen.delete('1.0', 'end')
         output_screen.insert('end', ' Test server is down!\n')
+    else:
+        output_screen.delete('1.0', 'end')
+        output_screen.insert('end', ' Test server is already stopped!\n')
     # sig = getattr(signal, "SIGKILL", signal.SIGTERM)
     # os.kill(pid, "SIGKILL")
     # print(pid)
@@ -95,69 +107,88 @@ def test_server_button_off_clicked():
 
 def attack_button_on_clicked():
     global attack_proc
+    global attack_in_progress_flag
     output_screen.delete('1.0', 'end')
+    # Checking target server settings and overwrite server_settings.json file:
     start_attack_flag = False
     with open('server_settings.json', 'r') as set_serv_file:
         set_serv_dict = json.load(set_serv_file)
+        # 1 Checking target server protocol:
         if protocol_var.get() == '':
-            output_screen.insert('end', 'Protocol entry field is empty!\n')
+            output_screen.insert('end', ' Protocol entry field is empty!\n')
+            start_attack_flag = False
+        elif protocol_var.get() != 'http':
+            output_screen.insert('end', ' Test server uses http protocol only!\n')
             start_attack_flag = False
         else:
             set_serv_dict['net_protocol'] = protocol_var.get()
             start_attack_flag = True
+        # 2 Checking target server node:
         if node_var.get() == '':
-            output_screen.insert('end', 'Node entry field is empty!\n')
+            output_screen.insert('end', ' Node entry field is empty!\n')
             start_attack_flag = False
         elif node_var.get() != '127.0.0.1':
-            output_screen.insert('end', 'Test server node is 127.0.0.1!\n'
+            output_screen.insert('end', ' Test server node is 127.0.0.1!\n'
                                  + 'You can use this program only with test server!\n')
             start_attack_flag = False
         else:
             set_serv_dict['net_node'] = node_var.get()
             start_attack_flag = True
+        # 3 Checking target server port:
         if port_var.get() == '':
-            output_screen.insert('end', 'Port entry field is empty!\n')
+            output_screen.insert('end', ' Port entry field is empty!\n')
+            start_attack_flag = False
+        elif port_var.get() != '5000':
+            output_screen.insert('end', ' Test server uses 5000 port!\n')
             start_attack_flag = False
         else:
             set_serv_dict['net_port'] = port_var.get()
             start_attack_flag = True
+        # 4 Checking target server path:
         if path_var.get() == '':
-            output_screen.insert('end', 'Path entry field is empty!\n')
+            output_screen.insert('end', ' Path entry field is empty!\n')
+            start_attack_flag = False
+        elif path_var.get() != 'auth':
+            output_screen.insert('end', ' Test server authorisation path is auth!\n')
             start_attack_flag = False
         else:
             set_serv_dict['net_path'] = path_var.get()
             start_attack_flag = True
+        # 5 Checking target server auth format:
         if auth_rbutton_var.get() == 1:
             set_serv_dict['net_query'] = 'json'
             start_attack_flag = True
         elif auth_rbutton_var.get() == 2:
             # set_serv_dict['net_query'] = 'data'
             start_attack_flag = False
-            output_screen.insert('end', 'Test server supports only json authorisation!\n'
+            output_screen.insert('end', ' Test server supports only json authorisation!\n'
                                  + 'You can use this program only with test server!\n')
         elif auth_rbutton_var.get() == 3:
             # set_serv_dict['net_query'] = 'headers'
             start_attack_flag = False
-            output_screen.insert('end', 'Test server supports only json authorisation!\n'
+            output_screen.insert('end', ' Test server supports only json authorisation!\n'
                                  + 'You can use this program only with test server!\n')
         elif auth_rbutton_var.get() == 4:
             # set_serv_dict['net_query'] = 'other'
             start_attack_flag = False
-            output_screen.insert('end', 'Test server supports only json authorisation!\n'
+            output_screen.insert('end', ' Test server supports only json authorisation!\n'
                                  + 'You can use this program only with test server!\n')
+        # 6 Checking target server login:
         if login_var.get() == '':
-            output_screen.insert('end', 'Login entry field is empty!\n')
+            output_screen.insert('end', ' Login entry field is empty!\n')
             start_attack_flag = False
         elif login_var.get() not in ['admin', 'cat', 'jack']:
-            output_screen.insert('end', 'Test server supports only three logins:\n'
+            output_screen.insert('end', ' Test server supports only three logins:\n'
                                  + '\"admin\", \"cat\" or \"jack\"!\n'
                                  + 'You can use this program only with test server!\n')
             start_attack_flag = False
         else:
             set_serv_dict['server_login'] = login_var.get()
             start_attack_flag = True
+        # 7 Checking target server password length:
         if pass_len_var.get() == '':
-            output_screen.insert('end', 'Password length entry field is empty!\n')
+            output_screen.insert('end', ' Password length entry field is empty!\n'
+                                 + 'If you have no idea about the length of the password, use 0.\n')
             start_attack_flag = False
         else:
             if start_attack_flag == True:
@@ -169,41 +200,93 @@ def attack_button_on_clicked():
                 if value_error == False:
                     start_attack_flag = True
                 else:
-                    output_screen.insert('end', 'Password length entry field supports only numbers!\n')
+                    output_screen.insert('end', ' Password length entry field supports only numbers!\n')
                     start_attack_flag = False
+    # Checking for any attacks in progress and starting selected attack:
     if start_attack_flag == True:
-        output_screen.insert('end', 'Starting attack:\n')
-        attack_progress.start()
         with open('server_settings.json', 'w') as set_serv_file:
             json.dump(set_serv_dict, set_serv_file, indent=4, sort_keys=False)
-        attack_plans_run = subprocess.Popen(['python', 'attack_plans.py'])
         if attack_rbutton_var.get() == 1:
-            attack_plans.smart_password_attack(substitution_password_attacks.brute_by_target_info,
-                                               substitution_password_attacks.brute_by_password_list,
-                                               brute_force_password_attacks.brute_force_password
-                                               )
+            attack_proc = multiprocessing.Process(target=attack_plans.smart_password_attack,
+                                                  args=(substitution_password_attacks.brute_by_target_info,
+                                                        substitution_password_attacks.brute_by_password_list,
+                                                        brute_force_password_attacks.brute_force_password,
+                                                        )
+                                                  )
         elif attack_rbutton_var.get() == 2:
-            attack_plans.password_attack_by_target_info_only(substitution_password_attacks.brute_by_target_info)
-            # attack_plans.password_attack_by_common_list_only(substitution_password_attacks.brute_by_password_list)
+            attack_proc = multiprocessing.Process(target=attack_plans.password_attack_by_target_info_only,
+                                                  args=(substitution_password_attacks.brute_by_target_info,)
+                                                  )
         elif attack_rbutton_var.get() == 3:
-            attack_plans.password_attack_by_brute_force_only(brute_force_password_attacks.brute_force_password)
+            attack_proc = multiprocessing.Process(target=attack_plans.password_attack_by_brute_force_only,
+                                                  args=(brute_force_password_attacks.brute_force_password,)
+                                                  )
+        if attack_proc is not None:
+            if attack_in_progress_flag:
+                output_screen.insert('end', ' First you have to stop the current attack!\n')
+            else:
+                attack_in_progress_flag = True
+                attack_progress.start()
+                output_screen.insert('end', ' Starting attack:\n')
+                attack_proc.start()
+                # multiprocessing.connection.wait(attack_proc.sentinel)
+        else:
+            output_screen.insert('end', ' Something wrong with attack process!\n'
+                                 + 'Try again!\n')
     else:
-        output_screen.insert('end', 'Unable to launch attack!\n')
+        output_screen.insert('end', ' Unable to launch attack!\n')
 
 def attack_button_off_clicked():
     global attack_proc
-    attack_plans_run.kill()
-    attack_progress.stop()
-    output_screen.insert('end', 'Attack stopped by user.\n')
+    global attack_in_progress_flag
+    if attack_proc is None:
+        attack_progress.stop()
+        attack_in_progress_flag = False
+        output_screen.delete('1.0', 'end')
+        output_screen.insert('end', ' No active attacks!\n')
+    else:
+        # attack_proc.terminate()
+        # attack_proc.join()
+        # attack_proc.close()
+        # attack_proc = None
+        # attack_progress.stop()
+        # attack_in_progress_flag = False
+        # output_screen.delete('1.0', 'end')
+        # output_screen.insert('end', ' Attack stopped by user\n')
+        if attack_proc.is_alive():
+            output_screen.insert('end', ' Attack is alive\n')
+            attack_proc.terminate()
+            attack_proc.join()
+            attack_proc.close()
+            attack_proc = None
+            attack_progress.stop()
+            attack_in_progress_flag = False
+            # output_screen.delete('1.0', 'end')
+            output_screen.insert('end', ' Attack stopped by user\n')
+        else:
+            output_screen.insert('end', ' Attack is not alive\n')
+            attack_proc.join()
+            attack_proc.close()
+            attack_proc = None
+            attack_progress.stop()
+            attack_in_progress_flag = False
+            # output_screen.delete('1.0', 'end')
+            output_screen.insert('end', ' Attack is already stopped!\n')
 
 def x_main_window():
     global test_server_proc
+    global attack_proc
+    if attack_proc is not None:
+        attack_proc.terminate()
+        attack_proc.join()
+        attack_proc.close()
+        attack_proc = None
     if test_server_proc is not None:
-        test_server_proc.kill()
+        test_server_proc.terminate()
+        test_server_proc.join()
+        test_server_proc.close()
         test_server_proc = None
-        root.destroy()
-    else:
-        root.destroy()
+    root.destroy()
 
 
 # Main window
@@ -395,5 +478,6 @@ xscrollbar.grid(row=1, column=0, sticky='ew')
 root.protocol('WM_DELETE_WINDOW', x_main_window)
 
 if __name__ == '__main__':
-    curio.run(root.mainloop)
-# root.mainloop()
+    multiprocessing.freeze_support()
+    root.mainloop()
+
