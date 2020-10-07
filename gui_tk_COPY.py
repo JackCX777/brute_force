@@ -23,6 +23,7 @@ import attack_plans
 test_server_proc = None
 attack_proc = None
 attack_in_progress_flag = False
+stdout_capture_thread = None
 
 
 # Command functions
@@ -33,8 +34,9 @@ attack_in_progress_flag = False
 def queue_catcher(captured_queue):
     global test_server_proc
     global attack_in_progress_flag
+    global stdout_capture_thread
     while not captured_queue.empty():
-        time.sleep(0.5)
+        time.sleep(0.1)
         print(captured_queue.get())
     print('queue is empty')
     output_screen.insert('end', ' The attack is complete.\n')
@@ -43,6 +45,8 @@ def queue_catcher(captured_queue):
         test_server_proc.join()
         test_server_proc.close()
         test_server_proc = None
+    if stdout_capture_thread is not None:
+        stdout_capture_thread.join()
     attack_in_progress_flag = False
     attack_progress.stop()
 
@@ -119,6 +123,7 @@ def test_server_button_off_clicked():
 def attack_button_on_clicked(start_attack_flag=False):
     global attack_proc
     global attack_in_progress_flag
+    global stdout_capture_thread
     start_attack_flag = False
     output_screen.delete('1.0', 'end')
     # Checking target server settings and overwrite server_settings.json file
@@ -250,7 +255,7 @@ def attack_button_on_clicked(start_attack_flag=False):
                 stdout_capture_thread = Thread(target=queue_catcher, args=(stdout_queue,))
                 stdout_capture_thread.daemon = True
                 stdout_capture_thread.start()
-                # stdout_capture_thread.join(timeout=5)
+                # stdout_capture_thread.join(timeout=1)
                 # stdout_capture_thread.stop()
         #         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         else:
