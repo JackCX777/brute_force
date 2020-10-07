@@ -46,4 +46,5 @@ def start_app():
 
 
 if __name__ == '__main__':
-    app.run()
+    # app.run()
+    start_app()

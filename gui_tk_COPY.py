@@ -4,9 +4,14 @@ import tkinter.ttk as ttk
 # from tkinter import *
 # from tkinter.ttk import *
 
-# This code for run test_server_WSGI.py by click button
+# This for run test_server_WSGI.py by click button
 from test_server_WSGI import start_app as application_server
 import multiprocessing
+
+# This is in order to implement a queue for data exchange between processes using a thread.
+from threading import Thread
+from multiprocess_stdout_queue import MultiprocessStdOutQueue
+import time
 
 import json
 import server_settings
@@ -14,27 +19,32 @@ import substitution_password_attacks
 import brute_force_password_attacks
 import attack_plans
 
-
 # global var:
 test_server_proc = None
 attack_proc = None
 attack_in_progress_flag = False
-# os.times()
-# print(test_server_run)
 
-# This code try to show print() in GUI text widget (maybe doesn't work):
-# import sys
-# Service functions
-# This code redirect print() to text widget:
-# def redirect_stdout(output_str):
-#     output_screen.insert('end', output_str)
-#
-# #whenever sys.stdout.write is called, redirector is called
-# sys.stdout.write = redirect_stdout
 
 # Command functions
 # def import_test_server():
 #     start_app()
+
+
+def queue_catcher(captured_queue):
+    global test_server_proc
+    global attack_in_progress_flag
+    while not captured_queue.empty():
+        time.sleep(0.5)
+        print(captured_queue.get())
+    print('queue is empty')
+    output_screen.insert('end', ' The attack is complete.\n')
+    if test_server_proc is not None:
+        test_server_proc.terminate()
+        test_server_proc.join()
+        test_server_proc.close()
+        test_server_proc = None
+    attack_in_progress_flag = False
+    attack_progress.stop()
 
 
 def test_server_button_on_clicked():
@@ -70,6 +80,7 @@ def test_server_button_on_clicked():
         test_server_proc = multiprocessing.Process(target=application_server)
         test_server_proc.start()
         output_screen.insert('end', ' Test server is up!\n')
+
 
 def test_server_button_off_clicked():
     global test_server_proc
@@ -110,9 +121,9 @@ def attack_button_on_clicked():
     global attack_in_progress_flag
     output_screen.delete('1.0', 'end')
     # Checking target server settings and overwrite server_settings.json file:
-    start_attack_flag = False
     with open('server_settings.json', 'r') as set_serv_file:
         set_serv_dict = json.load(set_serv_file)
+        start_attack_flag = False
         # 1 Checking target server protocol:
         if protocol_var.get() == '':
             output_screen.insert('end', ' Protocol entry field is empty!\n')
@@ -206,20 +217,26 @@ def attack_button_on_clicked():
     if start_attack_flag == True:
         with open('server_settings.json', 'w') as set_serv_file:
             json.dump(set_serv_dict, set_serv_file, indent=4, sort_keys=False)
+        stdout_queue = MultiprocessStdOutQueue()
         if attack_rbutton_var.get() == 1:
             attack_proc = multiprocessing.Process(target=attack_plans.smart_password_attack,
                                                   args=(substitution_password_attacks.brute_by_target_info,
                                                         substitution_password_attacks.brute_by_password_list,
                                                         brute_force_password_attacks.brute_force_password,
+                                                        stdout_queue,
                                                         )
                                                   )
         elif attack_rbutton_var.get() == 2:
             attack_proc = multiprocessing.Process(target=attack_plans.password_attack_by_target_info_only,
-                                                  args=(substitution_password_attacks.brute_by_target_info,)
+                                                  args=(substitution_password_attacks.brute_by_target_info,
+                                                        stdout_queue,
+                                                        )
                                                   )
         elif attack_rbutton_var.get() == 3:
             attack_proc = multiprocessing.Process(target=attack_plans.password_attack_by_brute_force_only,
-                                                  args=(brute_force_password_attacks.brute_force_password,)
+                                                  args=(brute_force_password_attacks.brute_force_password,
+                                                        stdout_queue,
+                                                        )
                                                   )
         if attack_proc is not None:
             if attack_in_progress_flag:
@@ -229,12 +246,19 @@ def attack_button_on_clicked():
                 attack_progress.start()
                 output_screen.insert('end', ' Starting attack:\n')
                 attack_proc.start()
-                # multiprocessing.connection.wait(attack_proc.sentinel)
+                time.sleep(0.5)
+                stdout_capture_thread = Thread(target=queue_catcher, args=(stdout_queue,))
+                stdout_capture_thread.daemon = True
+                stdout_capture_thread.start()
+                # stdout_capture_thread.join(timeout=5)
+                # stdout_capture_thread.stop()
+        #         !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         else:
             output_screen.insert('end', ' Something wrong with attack process!\n'
                                  + 'Try again!\n')
     else:
         output_screen.insert('end', ' Unable to launch attack!\n')
+
 
 def attack_button_off_clicked():
     global attack_proc
@@ -272,6 +296,7 @@ def attack_button_off_clicked():
             attack_in_progress_flag = False
             # output_screen.delete('1.0', 'end')
             output_screen.insert('end', ' Attack is already stopped!\n')
+
 
 def x_main_window():
     global test_server_proc
@@ -325,7 +350,7 @@ style.configure('center.TFrame', height=100)
 style.configure('my.TFrame')
 style.configure('Horizontal.TProgressbar')
 style.configure('main.TLabelframe', sticky='nsew', borderwidth=5, relief='groove')
-style.configure('my.TLabelframe', sticky='n'+'s'+'e'+'w', borderwidth=1)
+style.configure('my.TLabelframe', sticky='n' + 's' + 'e' + 'w', borderwidth=1)
 style.configure('my.TLabel', padx=1, sticky='w')
 style.configure('server.TEntry')
 style.configure('login.TEntry')
@@ -442,8 +467,8 @@ attack_button_on = ttk.Button(attack_frame, text='start attack', style='start.TB
                               command=attack_button_on_clicked)
 attack_button_off = ttk.Button(attack_frame, text='stop attack', style='stop.TButton',
                                command=attack_button_off_clicked)
-attack_button_on.grid(row=0, column=0, sticky='w'+'e', padx=5, ipadx=30)
-attack_button_off.grid(row=0, column=1, sticky='w'+'e', padx=5, ipadx=30)
+attack_button_on.grid(row=0, column=0, sticky='w' + 'e', padx=5, ipadx=30)
+attack_button_off.grid(row=0, column=1, sticky='w' + 'e', padx=5, ipadx=30)
 # Progress bar
 progress_frame = ttk.Frame(center_frame, style='my.TFrame')
 progress_frame.grid(row=1, column=0, columnspan=2, sticky='ew')
@@ -480,4 +505,3 @@ root.protocol('WM_DELETE_WINDOW', x_main_window)
 if __name__ == '__main__':
     multiprocessing.freeze_support()
     root.mainloop()
-
