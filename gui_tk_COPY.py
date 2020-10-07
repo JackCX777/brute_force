@@ -116,56 +116,15 @@ def test_server_button_off_clicked():
     # print(pid)
 
 
-def attack_button_on_clicked():
+def attack_button_on_clicked(start_attack_flag=False):
     global attack_proc
     global attack_in_progress_flag
+    start_attack_flag = False
     output_screen.delete('1.0', 'end')
-    # Checking target server settings and overwrite server_settings.json file:
+    # Checking target server settings and overwrite server_settings.json file
     with open('server_settings.json', 'r') as set_serv_file:
         set_serv_dict = json.load(set_serv_file)
-        start_attack_flag = False
-        # 1 Checking target server protocol:
-        if protocol_var.get() == '':
-            output_screen.insert('end', ' Protocol entry field is empty!\n')
-            start_attack_flag = False
-        elif protocol_var.get() != 'http':
-            output_screen.insert('end', ' Test server uses http protocol only!\n')
-            start_attack_flag = False
-        else:
-            set_serv_dict['net_protocol'] = protocol_var.get()
-            start_attack_flag = True
-        # 2 Checking target server node:
-        if node_var.get() == '':
-            output_screen.insert('end', ' Node entry field is empty!\n')
-            start_attack_flag = False
-        elif node_var.get() != '127.0.0.1':
-            output_screen.insert('end', ' Test server node is 127.0.0.1!\n'
-                                 + 'You can use this program only with test server!\n')
-            start_attack_flag = False
-        else:
-            set_serv_dict['net_node'] = node_var.get()
-            start_attack_flag = True
-        # 3 Checking target server port:
-        if port_var.get() == '':
-            output_screen.insert('end', ' Port entry field is empty!\n')
-            start_attack_flag = False
-        elif port_var.get() != '5000':
-            output_screen.insert('end', ' Test server uses 5000 port!\n')
-            start_attack_flag = False
-        else:
-            set_serv_dict['net_port'] = port_var.get()
-            start_attack_flag = True
-        # 4 Checking target server path:
-        if path_var.get() == '':
-            output_screen.insert('end', ' Path entry field is empty!\n')
-            start_attack_flag = False
-        elif path_var.get() != 'auth':
-            output_screen.insert('end', ' Test server authorisation path is auth!\n')
-            start_attack_flag = False
-        else:
-            set_serv_dict['net_path'] = path_var.get()
-            start_attack_flag = True
-        # 5 Checking target server auth format:
+        # 1 Checking target server auth format:
         if auth_rbutton_var.get() == 1:
             set_serv_dict['net_query'] = 'json'
             start_attack_flag = True
@@ -184,7 +143,7 @@ def attack_button_on_clicked():
             start_attack_flag = False
             output_screen.insert('end', ' Test server supports only json authorisation!\n'
                                  + 'You can use this program only with test server!\n')
-        # 6 Checking target server login:
+        # 2 Checking target server login:
         if login_var.get() == '':
             output_screen.insert('end', ' Login entry field is empty!\n')
             start_attack_flag = False
@@ -195,6 +154,47 @@ def attack_button_on_clicked():
             start_attack_flag = False
         else:
             set_serv_dict['server_login'] = login_var.get()
+            start_attack_flag = True
+        # 3 Checking target server protocol
+        if protocol_var.get() == '':
+            output_screen.insert('end', ' Protocol entry field is empty!\n')
+            start_attack_flag = False
+        elif protocol_var.get() != 'http':
+            output_screen.insert('end', ' Test server uses http protocol only!\n')
+            start_attack_flag = False
+        else:
+            set_serv_dict['net_protocol'] = protocol_var.get()
+            start_attack_flag = True
+        # 4 Checking target server node:
+        if node_var.get() == '':
+            output_screen.insert('end', ' Node entry field is empty!\n')
+            start_attack_flag = False
+        elif node_var.get() != '127.0.0.1':
+            output_screen.insert('end', ' Test server node is 127.0.0.1!\n'
+                                 + 'You can use this program only with test server!\n')
+            start_attack_flag = False
+        else:
+            set_serv_dict['net_node'] = node_var.get()
+            start_attack_flag = True
+        # 5 Checking target server port:
+        if port_var.get() == '':
+            output_screen.insert('end', ' Port entry field is empty!\n')
+            start_attack_flag = False
+        elif port_var.get() != '5000':
+            output_screen.insert('end', ' Test server uses 5000 port!\n')
+            start_attack_flag = False
+        else:
+            set_serv_dict['net_port'] = port_var.get()
+            start_attack_flag = True
+        # 6 Checking target server path:
+        if path_var.get() == '':
+            output_screen.insert('end', ' Path entry field is empty!\n')
+            start_attack_flag = False
+        elif path_var.get() != 'auth':
+            output_screen.insert('end', ' Test server authorisation path is auth!\n')
+            start_attack_flag = False
+        else:
+            set_serv_dict['net_path'] = path_var.get()
             start_attack_flag = True
         # 7 Checking target server password length:
         if pass_len_var.get() == '':
