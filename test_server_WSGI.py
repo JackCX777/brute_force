@@ -1,6 +1,8 @@
 import json
 from flask import Flask, request, Response
 from gevent.pywsgi import WSGIServer
+import os
+import sys
 
 
 app = Flask(__name__)
@@ -44,6 +46,10 @@ def start_app():
     http_server = WSGIServer(('', 5000), app)
     http_server.serve_forever()
 
+
+stdout_devnul = open(os.devnull, 'w')
+sys.stderr = stdout_devnul
+sys.stdout = stdout_devnul
 
 if __name__ == '__main__':
     # app.run()
