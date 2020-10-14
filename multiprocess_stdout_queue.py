@@ -9,7 +9,7 @@ class MultiprocessStdOutQueue(MP_queue):
         super(MultiprocessStdOutQueue, self).__init__(*args, **kwargs, ctx=context)
 
     def write(self, msg):
-        self.put_nowait(msg)
+        self.put(msg)
 
     def flush(self):
         sys.__stdout__.flush()

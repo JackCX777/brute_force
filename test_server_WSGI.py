@@ -45,6 +45,7 @@ def auth():
 def start_app():
     http_server = WSGIServer(('', 5000), app)
     http_server.serve_forever()
+    # app.run()
 
 
 stdout_devnul = open(os.devnull, 'w')
