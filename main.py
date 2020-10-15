@@ -1,6 +1,7 @@
 import substitution_password_attacks
 import brute_force_password_attacks
 import attack_plans
+import set_attack_options
 
 
 attack_plans.smart_password_attack(
