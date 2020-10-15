@@ -1,7 +1,7 @@
 import json
 
 
-server_login = 'cat'
+server_login = 'jack'
 password_length = 0
 net_protocol = 'http'
 net_node = '127.0.0.1'
@@ -38,5 +38,5 @@ server_settings_dict = {
         'brute_force_alphabet': brute_force_alphabet,
         'target_keyword_list': target_smat_keyword_list
     }
-with open('server_settings.json', 'w') as server_settings_file:
-    json.dump(server_settings_dict, server_settings_file, indent=4, sort_keys=False)
+with open('attack_settings.json', 'w') as attack_settings_file:
+    json.dump(server_settings_dict, attack_settings_file, indent=4, sort_keys=False)

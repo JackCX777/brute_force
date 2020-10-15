@@ -123,7 +123,7 @@ def attack_button_on_clicked():
         output_screen.insert('end', ' First you have to stop the current attack!\n')
     else:
         output_screen.delete('1.0', 'end')
-        # Checking target server settings and overwrite server_settings.json file
+        # Checking target server settings and overwrite attack_settings.json file
         start_attack_flag = False
         auth_format_flag = False
         login_flag = False
@@ -132,8 +132,8 @@ def attack_button_on_clicked():
         port_flag = False
         path_flag = False
         pass_len_flag = False
-        with open('server_settings.json', 'r') as settings_server_file_r:
-            set_serv_dict = json.load(settings_server_file_r)
+        with open('attack_settings.json', 'r') as attack_settings_file_r:
+            set_serv_dict = json.load(attack_settings_file_r)
             # 1 Checking target server auth format:
             if auth_rbutton_var.get() == 1:
                 set_serv_dict['net_query'] = 'json'
@@ -228,8 +228,8 @@ def attack_button_on_clicked():
         else:
             start_attack_flag = False
         if start_attack_flag:
-            with open('server_settings.json', 'w') as settings_server_file_w:
-                json.dump(set_serv_dict, settings_server_file_w, indent=4, sort_keys=False)
+            with open('attack_settings.json', 'w') as attack_settings_file_w:
+                json.dump(set_serv_dict, attack_settings_file_w, indent=4, sort_keys=False)
             stdout_queue = MultiprocessStdOutQueue()
             if attack_rbutton_var.get() == 1:
                 attack_proc = multiprocessing.Process(target=attack_plans.smart_password_attack,
