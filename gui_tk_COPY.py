@@ -14,7 +14,6 @@ from multiprocess_stdout_queue import MultiprocessStdOutQueue
 import time
 
 import json
-import server_settings
 import substitution_password_attacks
 import brute_force_password_attacks
 import attack_plans
@@ -26,6 +25,10 @@ attack_proc = None
 attack_in_progress_flag = False
 stdout_capture_thread = None
 thread_stop_flag = False
+
+# logging:
+# logging.basicConfig()
+# multiprocessing_logging.install_mp_handler()
 
 
 # Command functions
@@ -133,8 +136,8 @@ def attack_button_on_clicked():
         port_flag = False
         path_flag = False
         pass_len_flag = False
-        with open('server_settings.json', 'r') as settings_server_file_:
-            set_serv_dict = json.load(settings_server_file_)
+        with open('server_settings.json', 'r') as settings_server_file_r:
+            set_serv_dict = json.load(settings_server_file_r)
             # 1 Checking target server auth format:
             if auth_rbutton_var.get() == 1:
                 set_serv_dict['net_query'] = 'json'
@@ -209,7 +212,7 @@ def attack_button_on_clicked():
                 path_flag = True
             # 7 Checking target server password length:
             if pass_len_var.get().isdigit():
-                set_serv_dict['password_length'] = pass_len_var.get()
+                set_serv_dict['password_length'] = int(pass_len_var.get())
                 pass_len_flag = True
             else:
                 output_screen.insert(
@@ -263,7 +266,7 @@ def attack_button_on_clicked():
                 attack_progress.start()
                 output_screen.insert('end', ' Starting attack:\n')
                 attack_proc.start()
-                time.sleep(0.3)
+                time.sleep(0.5)
                 thread_stop_flag = False
                 stdout_capture_thread = Thread(target=queue_catcher, name='capture_thread',
                                                args=(stdout_queue, output_screen,))
@@ -303,10 +306,7 @@ def x_main_window():
     global stdout_capture_thread
     global thread_stop_flag
     thread_stop_flag = True
-    if stdout_capture_thread is not None:
-        time.sleep(0.3)
-        stdout_capture_thread.join()
-        stdout_capture_thread = None
+    attack_button_off_clicked()
     if attack_proc is not None:
         attack_proc.terminate()
         attack_proc.join()
@@ -317,6 +317,11 @@ def x_main_window():
         test_server_proc.join()
         test_server_proc.close()
         test_server_proc = None
+    # if stdout_capture_thread is not None:
+        # attack_button_off_clicked()
+    #     time.sleep(0.5)
+    #     stdout_capture_thread.join()
+    #     stdout_capture_thread = None
     root.destroy()
 
 
