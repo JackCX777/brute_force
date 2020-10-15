@@ -1,6 +1,6 @@
 {
-    "server_login": "cat",
-    "password_length": 3,
+    "server_login": "admin",
+    "password_length": 2,
     "net_protocol": "http",
     "net_node": "127.0.0.1",
     "net_port": "5000",

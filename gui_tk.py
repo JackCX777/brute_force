@@ -47,6 +47,18 @@ def queue_catcher(captured_queue, screen):
     attack_button_off_clicked()
 
 
+def enable_password_length():
+    pass_len_entry['state'] = 'normal'
+    pass_len_var.set(0)
+    style.configure('pass_len.TEntry', background='white')
+
+
+def disable_password_length():
+    pass_len_var.set(0)
+    style.configure('pass_len.TEntry', background='lightgrey')
+    pass_len_entry['state'] = 'disabled'
+
+
 def test_server_button_on_clicked():
     global test_server_proc
     protocol_var.set('http')
@@ -360,6 +372,7 @@ style.configure('my.TLabelframe', sticky='n' + 's' + 'e' + 'w', borderwidth=1)
 style.configure('my.TLabel', padx=1, sticky='w')
 style.configure('server.TEntry')
 style.configure('login.TEntry')
+style.configure('pass_len.TEntry', background='lightgrey')
 style.configure('my.TRadiobutton')
 style.configure('start.TButton', foreground='green')
 style.configure('stop.TButton', foreground='red')
@@ -454,16 +467,17 @@ login_entry = ttk.Entry(login_frame, style='login.TEntry', width=10, textvariabl
 login_entry.grid(row=1, column=0)
 pass_len_var = tk.StringVar()
 pass_len_var.set('0')
-pass_len_entry = ttk.Entry(pass_len_frame, style='login.TEntry', width=10, textvariable=pass_len_var)
+pass_len_entry = ttk.Entry(pass_len_frame, style='pass_len.TEntry', width=10, textvariable=pass_len_var,
+                           state='disabled')
 pass_len_entry.grid(row=2, column=0, sticky='w')
 # Attack options radiobuttons
 attack_rbutton_var = tk.IntVar()
 attack_rbutton_var.set(1)
-attack_rbutton1 = ttk.Radiobutton(method_frame, text='Smart attack',
+attack_rbutton1 = ttk.Radiobutton(method_frame, text='Smart attack', command=disable_password_length,
                                   variable=attack_rbutton_var, value=1, style='my.TRadiobutton')
-attack_rbutton2 = ttk.Radiobutton(method_frame, text='Dictionary attack',
+attack_rbutton2 = ttk.Radiobutton(method_frame, text='Dictionary attack', command=disable_password_length,
                                   variable=attack_rbutton_var, value=2, style='my.TRadiobutton')
-attack_rbutton3 = ttk.Radiobutton(method_frame, text='Brute force attack',
+attack_rbutton3 = ttk.Radiobutton(method_frame, text='Brute force attack', command=enable_password_length,
                                   variable=attack_rbutton_var, value=3, style='my.TRadiobutton')
 attack_rbutton1.grid(row=0, column=0, sticky='w')
 attack_rbutton2.grid(row=1, column=0, sticky='w')
