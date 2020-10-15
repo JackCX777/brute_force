@@ -26,10 +26,6 @@ attack_in_progress_flag = False
 stdout_capture_thread = None
 thread_stop_flag = False
 
-# logging:
-# logging.basicConfig()
-# multiprocessing_logging.install_mp_handler()
-
 
 # Command functions
 def queue_catcher(captured_queue, screen):
@@ -270,7 +266,7 @@ def attack_button_on_clicked():
                 thread_stop_flag = False
                 stdout_capture_thread = Thread(target=queue_catcher, name='capture_thread',
                                                args=(stdout_queue, output_screen,))
-                # stdout_capture_thread.daemon = True
+                stdout_capture_thread.daemon = True
                 stdout_capture_thread.start()
             else:
                 output_screen.insert('end', ' Something wrong with attack process!\n'
@@ -283,7 +279,7 @@ def attack_button_off_clicked():
     global attack_proc
     global attack_in_progress_flag
     global thread_stop_flag
-    global stdout_capture_thread
+    # global stdout_capture_thread
     thread_stop_flag = True
     if attack_proc is None:
         output_screen.delete('1.0', 'end')
@@ -306,7 +302,7 @@ def x_main_window():
     global stdout_capture_thread
     global thread_stop_flag
     thread_stop_flag = True
-    attack_button_off_clicked()
+    # attack_button_off_clicked()
     if attack_proc is not None:
         attack_proc.terminate()
         attack_proc.join()
@@ -317,11 +313,10 @@ def x_main_window():
         test_server_proc.join()
         test_server_proc.close()
         test_server_proc = None
-    # if stdout_capture_thread is not None:
-        # attack_button_off_clicked()
-    #     time.sleep(0.5)
-    #     stdout_capture_thread.join()
-    #     stdout_capture_thread = None
+    if stdout_capture_thread is not None:
+        # time.sleep(0.5)
+        stdout_capture_thread.join(timeout=0.5)
+        stdout_capture_thread = None
     root.destroy()
 
 
