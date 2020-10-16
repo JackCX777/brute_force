@@ -1,19 +1,25 @@
+"""
+
+"""
+
+# import external libraries:
+# This for run test_server_WSGI.py by click button
+from test_server_WSGI import start_app as application_server
+import vlc
+
+# import standard libraries:
 import tkinter as tk
 import tkinter.ttk as ttk
 # This code will replace tkinter widgets by ttk widgets
 # from tkinter import *
 # from tkinter.ttk import *
-
-# This for run test_server_WSGI.py by click button
-from test_server_WSGI import start_app as application_server
 import multiprocessing
-
+import time
+import json
 # This is in order to implement a queue for data exchange between processes using a thread.
 from threading import Thread
 from multiprocess_stdout_queue import MultiprocessStdOutQueue
-import time
 
-import json
 import substitution_password_attacks
 import brute_force_password_attacks
 import attack_plans
@@ -27,6 +33,33 @@ stdout_capture_thread = None
 thread_stop_flag = False
 
 
+# media player:
+# creating Instance class object
+player_instance = vlc.Instance()
+# setting 9999 times loop variant 1
+# player_instance = vlc.Instance('--input-repeat=9999')
+
+# creating a new media list
+media_list = player_instance.media_list_new()
+
+# creating a media player object
+media_player = player_instance.media_list_player_new()
+# media_player = player_instance.media_player_new('K_Motionz_-_Hack_It(ft.Duskee).mp3')
+# media_player = vlc.MediaPlayer('K_Motionz_-_Hack_It(ft.Duskee).mp3')
+
+# creating a new media
+media = player_instance.media_new('K_Motionz_-_Hack_It(ft.Duskee).mp3')
+
+# adding media to media list
+media_list.add_media(media)
+
+# setting media list to the mediaplayer
+media_player.set_media_list(media_list)
+
+# setting infinity? loop variant 2
+media_player.set_playback_mode(vlc.PlaybackMode.loop)
+
+
 # Command functions
 def queue_catcher(captured_queue, screen):
     global thread_stop_flag
@@ -34,7 +67,9 @@ def queue_catcher(captured_queue, screen):
         if not thread_stop_flag:
             # time.sleep(0.001)
             # print(captured_queue.get())
+            screen['state'] = 'normal'
             screen.insert('end', captured_queue.get_nowait() + '\n')
+            screen['state'] = 'disabled'
             screen.see('end')
         else:
             captured_queue.flush()
@@ -42,7 +77,9 @@ def queue_catcher(captured_queue, screen):
             captured_queue.cancel_join_thread()
             break
     captured_queue.close()
+    screen['state'] = 'normal'
     screen.insert('end', ' End of attack.\n')
+    screen['state'] = 'disabled'
     thread_stop_flag = True
     attack_button_off_clicked()
 
@@ -78,20 +115,26 @@ def test_server_button_on_clicked():
     auth_rbutton4['state'] = 'disabled'
     if test_server_proc is not None:
         if test_server_proc.is_alive():
+            output_screen['state'] = 'normal'
             output_screen.delete('1.0', 'end')
             output_screen.insert('end', ' Test server already in use!\n')
+            output_screen['state'] = 'disabled'
         else:
             test_server_proc.terminate()
             test_server_proc.join()
             test_server_proc.close()
             test_server_proc = None
+            output_screen['state'] = 'normal'
             output_screen.delete('1.0', 'end')
             output_screen.insert('end', ' The start of the test server failed.\n Try again!\n')
+            output_screen['state'] = 'disabled'
     else:
         output_screen.delete('1.0', 'end')
         test_server_proc = multiprocessing.Process(target=application_server)
         test_server_proc.start()
+        output_screen['state'] = 'normal'
         output_screen.insert('end', ' Test server is up!\n')
+        output_screen['state'] = 'disabled'
 
 
 def test_server_button_off_clicked():
@@ -111,18 +154,24 @@ def test_server_button_off_clicked():
     auth_rbutton3['state'] = 'normal'
     auth_rbutton4['state'] = 'normal'
     if test_server_proc is None:
+        output_screen['state'] = 'normal'
         output_screen.delete('1.0', 'end')
         output_screen.insert('end', ' Test server is not in use!\n')
+        output_screen['state'] = 'disabled'
     elif test_server_proc.is_alive():
         test_server_proc.terminate()
         test_server_proc.join()
         test_server_proc.close()
         test_server_proc = None
+        output_screen['state'] = 'normal'
         output_screen.delete('1.0', 'end')
         output_screen.insert('end', ' Test server is down!\n')
+        output_screen['state'] = 'disabled'
     else:
+        output_screen['state'] = 'normal'
         output_screen.delete('1.0', 'end')
         output_screen.insert('end', ' Test server is already stopped!\n')
+        output_screen['state'] = 'disabled'
 
 
 def attack_button_on_clicked():
@@ -130,11 +179,16 @@ def attack_button_on_clicked():
     global attack_in_progress_flag
     global stdout_capture_thread
     global thread_stop_flag
+    global media_player
     # Checking for any attacks in progress
     if attack_in_progress_flag:
+        output_screen['state'] = 'normal'
         output_screen.insert('end', ' First you have to stop the current attack!\n')
+        output_screen['state'] = 'disabled'
     else:
+        output_screen['state'] = 'normal'
         output_screen.delete('1.0', 'end')
+        output_screen['state'] = 'disabled'
         # Checking target server settings and overwrite attack_settings.json file
         start_attack_flag = False
         auth_format_flag = False
@@ -153,67 +207,93 @@ def attack_button_on_clicked():
             elif auth_rbutton_var.get() == 2:
                 # set_serv_dict['net_query'] = 'data'
                 auth_format_flag = False
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Test server supports only json authorisation!\n'
                                      + 'You can use this program only with test server!\n')
+                output_screen['state'] = 'disabled'
             elif auth_rbutton_var.get() == 3:
                 # set_serv_dict['net_query'] = 'headers'
                 auth_format_flag = False
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Test server supports only json authorisation!\n'
                                      + 'You can use this program only with test server!\n')
+                output_screen['state'] = 'disabled'
             elif auth_rbutton_var.get() == 4:
                 # set_serv_dict['net_query'] = 'other'
                 auth_format_flag = False
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Test server supports only json authorisation!\n'
                                      + 'You can use this program only with test server!\n')
+                output_screen['state'] = 'disabled'
             # 2 Checking target server login:
             if login_var.get() == '':
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Login entry field is empty!\n')
+                output_screen['state'] = 'disabled'
                 login_flag = False
             elif login_var.get() not in ['admin', 'cat', 'jack']:
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Test server supports only three logins:\n'
                                      + '\"admin\", \"cat\" or \"jack\"!\n'
                                      + 'You can use this program only with test server!\n')
+                output_screen['state'] = 'disabled'
                 login_flag = False
             else:
                 set_serv_dict['server_login'] = login_var.get()
                 login_flag = True
             # 3 Checking target server protocol
             if protocol_var.get() == '':
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Protocol entry field is empty!\n')
+                output_screen['state'] = 'disabled'
                 protocol_flag = False
             elif protocol_var.get() != 'http':
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Test server uses http protocol only!\n')
+                output_screen['state'] = 'disabled'
                 protocol_flag = False
             else:
                 set_serv_dict['net_protocol'] = protocol_var.get()
                 protocol_flag = True
             # 4 Checking target server node:
             if node_var.get() == '':
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Node entry field is empty!\n')
+                output_screen['state'] = 'disabled'
                 node_flag = False
             elif node_var.get() != '127.0.0.1':
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Test server node is 127.0.0.1!\n'
                                      + 'You can use this program only with test server!\n')
+                output_screen['state'] = 'disabled'
                 node_flag = False
             else:
                 set_serv_dict['net_node'] = node_var.get()
                 node_flag = True
             # 5 Checking target server port:
             if port_var.get() == '':
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Port entry field is empty!\n')
+                output_screen['state'] = 'disabled'
                 port_flag = False
             elif port_var.get() != '5000':
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Test server uses 5000 port!\n')
+                output_screen['state'] = 'disabled'
                 port_flag = False
             else:
                 set_serv_dict['net_port'] = port_var.get()
                 port_flag = True
             # 6 Checking target server path:
             if path_var.get() == '':
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Path entry field is empty!\n')
+                output_screen['state'] = 'disabled'
                 path_flag = False
             elif path_var.get() != 'auth':
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Test server authorisation path is auth!\n')
+                output_screen['state'] = 'disabled'
                 path_flag = False
             else:
                 set_serv_dict['net_path'] = path_var.get()
@@ -223,10 +303,12 @@ def attack_button_on_clicked():
                 set_serv_dict['password_length'] = int(pass_len_var.get())
                 pass_len_flag = True
             else:
+                output_screen['state'] = 'normal'
                 output_screen.insert(
                     'end', ' Password length entry field supports only numbers and should not be empty!\n'
                            + 'If you have no idea about the length of the password, use 0.\n'
                 )
+                output_screen['state'] = 'disabled'
                 pass_len_flag = False
         # Checking for server settings and starting selected attack:
         if auth_format_flag\
@@ -272,7 +354,9 @@ def attack_button_on_clicked():
                 stdout_capture_thread = None
                 attack_in_progress_flag = True
                 attack_progress.start()
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Starting attack:\n')
+                output_screen['state'] = 'disabled'
                 attack_proc.start()
                 time.sleep(0.5)
                 thread_stop_flag = False
@@ -280,30 +364,43 @@ def attack_button_on_clicked():
                                                args=(stdout_queue, output_screen,))
                 stdout_capture_thread.daemon = True
                 stdout_capture_thread.start()
+                if not media_player.is_playing():
+                    media_player.play()
+                else:
+                    pass
             else:
+                output_screen['state'] = 'normal'
                 output_screen.insert('end', ' Something wrong with attack process!\n'
                                      + 'Try again!\n')
+                output_screen['state'] = 'disabled'
         else:
+            output_screen['state'] = 'normal'
             output_screen.insert('end', ' Unable to launch attack!\n')
+            output_screen['state'] = 'disabled'
 
 
 def attack_button_off_clicked():
     global attack_proc
     global attack_in_progress_flag
     global thread_stop_flag
-    # global stdout_capture_thread
+    global media_player
     thread_stop_flag = True
     if attack_proc is None:
+        output_screen['state'] = 'normal'
         output_screen.delete('1.0', 'end')
         output_screen.insert('end', ' No active attacks!\n')
+        output_screen['state'] = 'disabled'
     else:
         if attack_proc.is_alive():
             attack_proc.terminate()
             attack_proc.join()
+            output_screen['state'] = 'normal'
             # output_screen.delete('1.0', 'end')
             output_screen.insert('end', ' Attack stopped by user\n')
+            output_screen['state'] = 'disabled'
         attack_proc.close()
         attack_proc = None
+    media_player.stop()
     attack_progress.stop()
     attack_in_progress_flag = False
 
@@ -508,7 +605,7 @@ bottom_frame.rowconfigure(0, weight=1)
 bottom_frame.columnconfigure(0, weight=1)
 # Output screen
 output_screen = tk.Text(bottom_frame, bg='#000000', fg='#64c864', font='Menlo 14', wrap='word', padx=7,
-                        selectforeground='red', insertbackground='#64c864', state='normal')
+                        selectforeground='red', insertbackground='#64c864', state='disabled')
 output_screen.grid(row=0, column=0, sticky='nsew')
 # Scrollbar for output screen
 yscrollbar = tk.Scrollbar(bottom_frame, orient='vert', command=output_screen.yview)
