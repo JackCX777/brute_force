@@ -1,6 +1,5 @@
-"""
+# This module provides GUI for brute force program by pythons tkinter library.
 
-"""
 
 # import external libraries:
 # This for run test_server_WSGI.py by click button
@@ -20,17 +19,18 @@ import json
 from threading import Thread
 from multiprocess_stdout_queue import MultiprocessStdOutQueue
 
+# import modules:
 import substitution_password_attacks
 import brute_force_password_attacks
 import attack_plans
 
 
 # global vars:
-test_server_proc = None
-attack_proc = None
-attack_in_progress_flag = False
-stdout_capture_thread = None
-thread_stop_flag = False
+test_server_proc = None  # Process, that runs test server.
+attack_proc = None  # Process, that runs selected attack.
+attack_in_progress_flag = False  # Boolean variable that indicates that an attack has already been launched.
+stdout_capture_thread = None  # Thread, that runs stdout capture, by queue_catcher() function.
+thread_stop_flag = False  # Boolean flag that used ащк trigger the stop signal to stdout_capture_thread.
 
 
 # media player:
@@ -38,30 +38,36 @@ thread_stop_flag = False
 player_instance = vlc.Instance()
 # setting 9999 times loop variant 1
 # player_instance = vlc.Instance('--input-repeat=9999')
-
 # creating a new media list
 media_list = player_instance.media_list_new()
-
 # creating a media player object
 media_player = player_instance.media_list_player_new()
 # media_player = player_instance.media_player_new('K_Motionz_-_Hack_It(ft.Duskee).mp3')
 # media_player = vlc.MediaPlayer('K_Motionz_-_Hack_It(ft.Duskee).mp3')
-
 # creating a new media
 media = player_instance.media_new('K_Motionz_-_Hack_It(ft.Duskee).mp3')
-
 # adding media to media list
 media_list.add_media(media)
-
 # setting media list to the mediaplayer
 media_player.set_media_list(media_list)
-
 # setting infinity? loop variant 2
 media_player.set_playback_mode(vlc.PlaybackMode.loop)
 
 
 # Command functions
 def queue_catcher(captured_queue, screen):
+    """
+        This function gets sys.stdout messages one by one from MultiprocessStdOutQueue object
+        and prints its to the program screen MultiprocessStdOutQueue is not empty,
+        and then stop the attack.
+
+        Parameters:
+            captured_queue (MultiprocessStdOutQueue): Custom class for sys.stdout messages capture implementation.
+            screen (tkinter.Text) : Tkinter text object, that provides printing text messages for user.
+
+        Returns:
+            None
+    """
     global thread_stop_flag
     while not captured_queue.empty():
         if not thread_stop_flag:
@@ -85,18 +91,42 @@ def queue_catcher(captured_queue, screen):
 
 
 def enable_password_length():
+    """
+        This function allows the password length field to be edited by user.
+
+        Parameters:
+
+        Returns:
+            None
+    """
     pass_len_entry['state'] = 'normal'
     pass_len_var.set(0)
     style.configure('pass_len.TEntry', background='white')
 
 
 def disable_password_length():
+    """
+        This function prohibits editing the password length field by user.
+
+        Parameters:
+
+        Returns:
+            None
+    """
     pass_len_var.set(0)
     style.configure('pass_len.TEntry', background='lightgrey')
     pass_len_entry['state'] = 'disabled'
 
 
 def test_server_button_on_clicked():
+    """
+        This function starts test_server_WSGI.py module in dedicated process after users click run test server button.
+
+        Parameters:
+
+        Returns:
+            None
+    """
     global test_server_proc
     protocol_var.set('http')
     node_var.set('127.0.0.1')
@@ -138,6 +168,15 @@ def test_server_button_on_clicked():
 
 
 def test_server_button_off_clicked():
+    """
+        This function stops dedicated process, that runs test_server_WSGI.py module
+        after users click run test server button.
+
+        Parameters:
+
+        Returns:
+            None
+    """
     global test_server_proc
     protocol_var.set('')
     node_var.set('')
@@ -175,6 +214,18 @@ def test_server_button_off_clicked():
 
 
 def attack_button_on_clicked():
+    """
+        This function verifies that all attack options are correct,
+        save attack options to attack_settings.json file,
+        starts selected attack in dedicated process if not any attack has been launched,
+        launch the thread with cycle, that get sys.stdout messages from MultiprocessStdOutQueue object
+        and starts playing media file after users click start attack button.
+
+        Parameters:
+
+        Returns:
+            None
+    """
     global attack_proc
     global attack_in_progress_flag
     global stdout_capture_thread
@@ -380,6 +431,15 @@ def attack_button_on_clicked():
 
 
 def attack_button_off_clicked():
+    """
+        This function stop the attack process, if any, and stop playing media
+         after users click run test server button.
+
+        Parameters:
+
+        Returns:
+            None
+    """
     global attack_proc
     global attack_in_progress_flag
     global thread_stop_flag
@@ -406,6 +466,14 @@ def attack_button_off_clicked():
 
 
 def x_main_window():
+    """
+        This function cleans up before close program after users click X button.
+
+        Parameters:
+
+        Returns:
+            None
+    """
     global test_server_proc
     global attack_proc
     global stdout_capture_thread

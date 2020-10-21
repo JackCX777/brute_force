@@ -1,3 +1,9 @@
+# This module contains special MultiprocessStdOutQueue class.
+# It is inherited from the multiprocessing.queues.Queue class and extends its functionality
+# for special multiprocess queue implementation, that puts sys.stdout messages
+# and immediately flushes it one by one.
+
+
 import multiprocessing
 from multiprocessing.queues import Queue as MP_queue
 import sys

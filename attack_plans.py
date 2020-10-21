@@ -1,11 +1,28 @@
+# This module contains sequences of algorythms for every attack.
+
+
 import json
 import server_queries
-import multiprocessing
 import sys
 import datetime
 
 
 def smart_password_attack(target_info_attack, password_list_attack, brute_force_attack, gui_queue=None):
+    """
+       This attack plan consistently launches algorithms: attack by target info algorithm,
+       attack by common passwords dictionary algorithm and simple brute force algorithm if previous ones fail.
+
+        Parameters:
+            target_info_attack (func): Function brute_by_target_info from substitution_password_attacks.py module.
+            password_list_attack (func) : Function brute_by_password_list from substitution_password_attacks.py module.
+            brute_force_attack (func) : Function brute_force_password from brute_force_password_attacks.py module.
+            gui_queue (MultiprocessStdOutQueue) : Instance of MultiprocessStdOutQueue class
+                                                  from multiprocess_stdout_queue.py module(means that GUI launched)
+                                                  or None by default(means that program launched by console).
+
+        Returns:
+            None
+        """
     if gui_queue is not None:
         sys.stderr = sys.stdout
         sys.stdout = gui_queue
@@ -42,6 +59,18 @@ def smart_password_attack(target_info_attack, password_list_attack, brute_force_
 
 
 def password_attack_by_target_info_only(target_info_attack, gui_queue=None):
+    """
+        This attack plan launches algorithm of attack by target info.
+
+        Parameters:
+            target_info_attack (func): Function brute_by_target_info from substitution_password_attacks.py module.
+            gui_queue (MultiprocessStdOutQueue) : Instance of MultiprocessStdOutQueue class
+                                                      from multiprocess_stdout_queue.py module(means that GUI launched)
+                                                      or None by default(means that program launched by console).
+
+        Returns:
+            None
+    """
     if gui_queue is not None:
         sys.stderr = sys.stdout
         sys.stdout = gui_queue
@@ -64,6 +93,18 @@ def password_attack_by_target_info_only(target_info_attack, gui_queue=None):
 
 
 def password_attack_by_common_list_only(password_list_attack, gui_queue=None):
+    """
+        This attack plan launches algorithm of attack by common passwords dictionary.
+
+        Parameters:
+            password_list_attack (func) : Function brute_by_password_list from substitution_password_attacks.py module.
+            gui_queue (MultiprocessStdOutQueue) : Instance of MultiprocessStdOutQueue class
+                                                      from multiprocess_stdout_queue.py module(means that GUI launched)
+                                                      or None by default(means that program launched by console).
+
+        Returns:
+            None
+    """
     if gui_queue is not None:
         sys.stderr = sys.stdout
         sys.stdout = gui_queue
@@ -86,6 +127,19 @@ def password_attack_by_common_list_only(password_list_attack, gui_queue=None):
 
 
 def password_attack_by_brute_force_only(brute_force_attack, gui_queue=None):
+    """
+        This attack plan consistently launches algorithms: attack by target info,
+        attack by common passwords dictionary algorithm and simple brute force algorithm if previous ones fail.
+
+        Parameters:
+            brute_force_attack (func) : Function brute_force_password from brute_force_password_attacks.py module.
+            gui_queue (MultiprocessStdOutQueue) : Instance of MultiprocessStdOutQueue class
+                                                      from multiprocess_stdout_queue.py module(means that GUI launched)
+                                                      or None by default(means that program launched by console).
+
+        Returns:
+            None
+    """
     if gui_queue is not None:
         sys.stderr = sys.stdout
         sys.stdout = gui_queue
