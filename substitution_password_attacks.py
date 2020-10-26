@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+# This module includes substitution password attacks by keywords from dictionaries.
+
 
 def brute_by_target_info(keyword_list,
                          query,
@@ -6,6 +10,25 @@ def brute_by_target_info(keyword_list,
                          difficulty_end_index_target_info=2,
                          iter_number=0
                          ):
+    """
+    Substitution password attack by keywords from target_info.txt file
+    combined with top part of common_passwords_file.txt file.
+    Works like simple brute force algorithm, but uses keywords instead of brute force alphabet symbols.
+    and combines two words max in any possible combinations.
+
+    Parameters:
+        keyword_list (lst): The list of keywords from the target_keyword_list key of attack_settings.json file.
+        query (func) : Request function from the server_queries.py module.
+        query_settings_dict (dict) : Dictionary, that contains parameters from attack_settings.json.
+        difficulty_start_index_target_info (int) : Integer index of minimal keywords combination difficulty,
+                                                   0 by default.
+        difficulty_end_index_target_info (int) : Integer index of maximal keywords combination difficulty,
+                                                 2 by default.
+        iter_number (int) : Number of iteration in the keywords combine cycle, starts from 0 by default.
+
+    Returns:
+        password_target_info (str) : Password phrase string, if the attack was successful
+    """
     server_login = query_settings_dict['server_login']
     net_protocol = query_settings_dict['net_protocol']
     net_node = query_settings_dict['net_node']
@@ -42,6 +65,20 @@ def brute_by_target_info(keyword_list,
 
 
 def brute_by_password_list(passwords_file, query, query_settings_dict, iter_number=0):
+    """
+        Substitution password attack by keywords from common_passwords_file.txt file.
+        Works like simple brute force algorithm, but uses keywords instead of brute force alphabet symbols.
+        and passes it to request function without any changes.
+
+        Parameters:
+            passwords_file (file): The file with common passwords.
+            query (func) : Request function from the server_queries.py module.
+            query_settings_dict (dict) : Dictionary, that contains parameters from attack_settings.json.
+            iter_number (int) : Iteration number of the keywords cycle, starts from 0 by default.
+
+        Returns:
+            password_from_list (str) : Password phrase string, if the attack was successful
+        """
     server_login = query_settings_dict['server_login']
     net_protocol = query_settings_dict['net_protocol']
     net_node = query_settings_dict['net_node']

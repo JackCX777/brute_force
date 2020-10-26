@@ -1,0 +1,3 @@
+source ~/.bashrc
+#source ~/pycharmvenv/bin/activate #absolute path
+source ./venv/bin/activate #relative path
