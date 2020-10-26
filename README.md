@@ -21,6 +21,9 @@ If you have brute_force_GUI_portable file only, just run it and enjoy.
 In other cases, you will have to perform some preparations:
 Download and install Python 3.8 or above as recommended on official 
 Python's website https://www.python.org
+Create venv/bin/ inside your applications folder if don't have them and copy 
+requirements.txt file from your applications folde to the venv/bin/ 
+directory.
 Open terminal window from applications folder and install program 
 requirements by following commands:
 $ cd venv/bin/
@@ -86,7 +89,9 @@ Text screen – creates program feedback in text format.
 If you prefer terminal mode:
 Change the attack settings by editing set_attack_settings.py file if you 
 like.
-Open the terminal from applications folder.
+Open the terminal from applications folder and run the following command to 
+activate virtual environment:
+$ source venv/bin/activate
 Run the test server by console command:
 $ python3 test_server_WSGI.py
 Run the application by console command:
