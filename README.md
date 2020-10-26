@@ -8,10 +8,10 @@ get somebody's information, such as passwords, logins, personal data or
 anything else! The public / commercial playback or broadcast of the 
 multimedia used in this program is prohibited as well. The commercial use of 
 the code is also not permitted, you know.
-Program must be used only with local test server.
+The program must be used only with local test server.
 This application provides several algorithms of brute-force password 
-recovery for the known login on the server. 
-Note, that project now is on the developing stage.
+recovery for known login on the server. 
+Please note, that project now is on the developing stage.
 
 # Install
 
@@ -45,27 +45,26 @@ Auth format radiobuttons provide selection of authorisation
 format on the target server, json or headers e.g. Json only
 works now.
 Run test server button - launches simple test server on localhosts 5000 port, 
-automatically fills all server address fields andauth format, then disables 
+automatically fills all server address fields and auth format, then disables 
 its editing. You can open your browser and go to the test servers home page 
 on http://127.0.0.1:5000 address. On this page you can see the number of 
 attempts to login on the server and the number of success authorisations on 
 the server.
 Stop test server button - stops the test server and restores the ability to
 edit all target servers fields and radiobuttons.
-Target login field - depending on the authorisation rules on the target 
-server, the username or e-mail should be specified here. There is three 
-users on the test server: admin, cat and jack.
+Target login field - the username or e-mail should be specified here depending on the authorisation rules on the target 
+server. There are three users on the test server: admin, cat and jack.
 Min password length field - if you have some information about passwords 
 length (servers requirement for a minimum password length is six characters
 or you know that the user has a password consisting of three symbols e.g.),
 you can reduce the working time of simple brute force algorithm by 
-specifying here a number that corresponds to minimum length of the password.
-Then the program will start brute force from given length and skip all 
-passwords that are shorter(but an empty password will be included). This 
-option works only when Attack method set to Brute force attack.
-Attack method radiobuttons - before start the attack, you can choose the 
+specifying here a number that corresponds to the minimum length of the 
+password.Then the program will start brute force from given length and skip 
+all passwords that are shorter (but an empty password will be included). 
+This option works only when Attack method set to Brute force attack.
+Attack method radiobuttons - before starting the attack, you can choose the 
 password search algorithm from three options:
-Smart attack - attack by target info will be started at first, that 
+Smart attack - attack by target info will start first, that 
 substitutes each word from target_info.txt file and top of the 
 common_passwords_file.txt (top 100 by default) as a password, then goes 
 through combinations of any two;
@@ -74,15 +73,15 @@ substitutes words from common_passwords_file.txt file one by one;
 simple brute force attack will be started at the end, if all previous fails, 
 that substitutes characters from given alphabet in any possible 
 combinations.
-Dictionary attack - attack by common passwords only wil be started.
-Brute force attack - simple brute force attack only will be started.
-Start attack button - check all attack options and start the selected 
+Dictionary attack - attack by common passwords only will be lanched.
+Brute force attack - simple brute force attack only will be lanched.
+Start attack button - checks all attack options and starts the selected 
 attack, if correct. In addition start multimedia (audio) playback in 
-infinity loop while attack in progress.
-Stop attack button - stop all current attacks if any and stop multimedia 
+infinity loop while attack is in progress.
+Stop attack button - stops all current attacks if any and stops multimedia 
 playback.
-Progressbar - shows that any attack in progress now.
-Text screen - programs feedback in text format.
+Progressbar - shows any attack that is in progress now.
+Text screen – creates program feedback in text format.
  
 If you prefer terminal mode:
 Change the attack settings by editing set_attack_settings.py file if you 
@@ -105,5 +104,5 @@ All attack descriptions are given above.
 
 You can edit attack_settings.json, common_passwords_file.txt, 
 set_attack_settings.py and target_info.txt files if you want to change the 
-settings of the attack, like target login, list of common passwords, top
+settings of the attack such as target login, list of common passwords, top
 number of common passwords, list of target info etc.
