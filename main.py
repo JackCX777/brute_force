@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 # This is the main file for run program by console.
 # You should run test_server_WSGI.py file before run this script
 # to start local test server on http://127.0.0.1:5000.

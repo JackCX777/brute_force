@@ -660,8 +660,8 @@ progress_frame.grid(row=1, column=0, columnspan=2, sticky='ew')
 attack_progress = ttk.Progressbar(progress_frame, mode='indeterminate', style='Horizontal.TProgressbar',
                                   length=800, orient=tk.HORIZONTAL, maximum=100)
 attack_progress.grid(row=0, column=0, padx=10, sticky='ew')
-attack_progress.start(50)
-attack_progress.stop()
+# attack_progress.start(50)
+# attack_progress.stop()
 
 # Bottom frame
 # Bottom frame

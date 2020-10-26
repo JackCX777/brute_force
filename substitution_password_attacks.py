@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # This module includes substitution password attacks by keywords from dictionaries.
 
 

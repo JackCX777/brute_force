@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # This is a simple test server program, that run local http server on http://127.0.0.1:5000 synchronously.
 # If You like to run it using WSGI from gevent library, edit start_app() function
 # or just use default flask services(recommended).

@@ -5,7 +5,7 @@
     "net_node": "127.0.0.1",
     "net_port": "5000",
     "net_path": "auth",
-    "net_query": "???",
+    "net_query": "json",
     "brute_force_alphabet": "0123456789abcdefghijklmnopqrstuvwxyz",
     "target_keyword_list": [
         "email@mail.com",
