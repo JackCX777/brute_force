@@ -17,17 +17,23 @@ Please note, that project now is on the developing stage.
 
 Download the application files by link and extract if needed:
 https://github.com/JackCX777/brute_force/archive/master.zip
-If you have brute_force_GUI_portable file only, just run it and enjoy.
+If you have brute_force_GUI or brute_force_GUI_portable application file, 
+just run it and enjoy.
 In other cases, you will have to perform some preparations:
 Download and install Python 3.8 or above as recommended on official 
 Python's website https://www.python.org
-Create venv/bin/ inside your applications folder if don't have them and copy 
-requirements.txt file from your applications folde to the venv/bin/ 
-directory.
-Open terminal window from applications folder and install program 
-requirements by following commands:
+Open terminal window from applications folder and install an isolated Python 
+environment for application by following commands:
+$ pip install virtualenv
+$ virtualenv venv --system-site-packages
+$ source venv/bin/activate
+Then copy requirements.txt file from applications folder to path venv/bin/
+and install program requirements by following commands:
 $ cd venv/bin/
 $ pip install -r requirements.txt
+And now go back to the applications root directory by following command:
+$ cd ../../
+Ok, now you are ready.
 Application tested on macOS Catalina 10.15.6 and 
 Python 3.8.5 (v3.8.5:580fbb018f, Jul 20 2020, 12:11:27).
 
@@ -38,6 +44,12 @@ You can use this program in GUI or in terminal mode.
 If you prefer GUI mode:
 Run the brute_force_GUI or brute_force_GUI_portable file required to your 
 operation system.
+If you don' have them, you can run program with console. If you closed the 
+terminal after installation, open it again from the program folder and 
+apply command:
+$ source venv/bin/activate
+After it you can launch the program by following command:
+$ python3 gui_tk.py 
 Interface description:
 Protocol - protocol used by target server, http or https e.g.
 Node - servers network address, yandex.ru e.g. 
