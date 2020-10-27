@@ -106,7 +106,10 @@ activate virtual environment:
 $ source venv/bin/activate
 Run the test server by console command:
 $ python3 test_server_WSGI.py
-Run the application by console command:
+Don't close previous terminal window and open one more terminal window from 
+applications folder, then activate virtual environment for new terminal too:
+$ source venv/bin/activate
+Run the application by console command in new terminal:
 $ python3 main.py 
 Type s for set attack settings if you have changed the 
 set_attack_settings.py file.
