@@ -16,7 +16,7 @@ Please note, that project now is on the developing stage.
 # Install
 
 Download the application files by link and extract if needed:
-https://github.com/JackCX777/brute_force/archive/master.zip
+https://github.com/JackCX777/brute_force/archive/v1.1.0.zip
 If you have brute_force_GUI or brute_force_GUI_portable application file, 
 just run it and enjoy.
 In other cases, you will have to perform some preparations:
